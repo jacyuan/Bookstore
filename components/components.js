@@ -6,8 +6,6 @@ var {
     Link
 } = ReactRouter;
 
-var CryptoJS = require("crypto-js");
-
 var App = React.createClass({
     getInitialState: function () {
         return {
@@ -18,16 +16,11 @@ var App = React.createClass({
     componentDidMount: function () {
         var publicKey = 'f63548d029560ca6297df5eab0ce1184';
         var privateKey = '21fb208a38c9feaf9e8a043d0f6276eba10784e7';
-        // var url = 'http://gateway.marvel.com:80/v1/public/comics?apikey=';
-
         var ts = new Date().getTime();
         var hash = CryptoJS.MD5(ts + privateKey + publicKey).toString();
+        var url = "https://gateway.marvel.com/v1/public/characters?apikey=" + publicKey;
+        url += "&ts=" + ts + "&hash=" + hash;
 
-        var url = "http://gateway.marvel.com/v1/public/comics?limit=100&format=comic&formatType=comic&apikey="+publicKey;
-        var ts = new Date().getTime();
-        url += "&ts="+ts+"&hash="+privateKey;
-
-        // $.get('http://codepen.io/jobs.json', function (res) {
         $.get(url, function (res) {
             console.log(res);
         });
