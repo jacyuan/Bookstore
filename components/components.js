@@ -65,7 +65,7 @@ let App = React.createClass({
                     <li>
                         <Link to="/bookList">Book list</Link>
                     </li>
-                    <li> | </li>
+                    <li> |</li>
                     <li>
                         <Link to="/cartInfo">Cart ({this.getBooksCount()} book(s) added)</Link>
                     </li>
@@ -114,27 +114,30 @@ let BookList = React.createClass({
 
         let hash = CryptoJS.MD5(ts + privateKey + publicKey).toString();
 
-        let url = "http://gateway.marvel.com:80/v1/public/comics?limit=6&offset=0&apikey=" + publicKey;
+        let url = 'http://gateway.marvel.com:80/v1/public/comics?limit=6&offset=0&apikey=' + publicKey;
 
-        url += "&ts=" + ts + "&hash=" + hash;
+        url += '&ts=' + ts + '&hash=' + hash;
 
         //get all book info
         $.get(url, function (res) {
             let booksInfo = _.map(res.data.results, function (book) {
                 let authors = '';
 
-                if (book.creators && book.creators && book.creators.items.length > 0) {
+                if (book && book.creators && book.creators.items && book.creators.items.length > 0) {
                     authors = self.getAuthorNames(book.creators.items);
                 }
 
                 let thumbImg = book.thumbnail.path + '.' + book.thumbnail.extension;
 
+                let price = book.prices[0].price;
+
                 return {
                     id: book.id,
-                    name: book.title,
-                    author: authors,
+                    title: book.title,
+                    authors: authors,
                     thumbImg: thumbImg,
-                    pageCount: book.pageCount
+                    pageCount: book.pageCount,
+                    price: price
                 };
             });
 
@@ -147,7 +150,12 @@ let BookList = React.createClass({
     render: function () {
         const nodes = this.state.books.map(function (book, key) {
             return (
-                <BookInList key={key} id={book.id} name={book.name} author={book.author} pageCount={book.pageCount}
+                <BookInList key={key}
+                            id={book.id}
+                            title={book.title}
+                            authors={book.authors}
+                            pageCount={book.pageCount}
+                            price={book.price}
                             thumbImg={book.thumbImg}>
                 </BookInList>
             );
@@ -176,29 +184,28 @@ let BookInList = React.createClass({
             margin: '0 0 5px'
         };
 
+        let book = {
+            id: this.props.id,
+            title: this.props.title,
+            author: this.props.authors,
+            thumbImg: this.props.thumbImg,
+            pageCount: this.props.pageCount,
+            price: this.props.price
+        };
+
         return (
             <div className="col-md-4" style={marginBottom5}>
-                <Link to="/bookDetail">
-                    <div className="col-md-5">
+                <div className="col-md-5">
+                    <Link to={{pathname: '/bookDetail', state: {id: this.props.id}}}>
                         <img src={this.props.thumbImg} style={imgStyle}/>
-                    </div>
-                </Link>
+                    </Link>
+                </div>
 
                 <div className="col-md-7">
-                    <p style={marginBottom5}>{this.props.name}</p>
-                    <p style={marginBottom5}>{this.props.author}</p>
+                    <p style={marginBottom5}>{this.props.title}</p>
+                    <p style={marginBottom5}>{this.props.authors}</p>
                     <p style={marginBottom5}>{this.props.pageCount} pages</p>
-                    <p style={marginBottom5}>
-                        <a className="btn btn-default" role="button" title="Add to cart"
-                           onClick={() => this.addBook(this.props)}>
-                            +
-                        </a>
-
-                        <a className="btn btn-default" role="button" title="Remove from cart"
-                           onClick={() => this.removeBook(this.props)}>
-                            -
-                        </a>
-                    </p>
+                    <AddRemoveButtons book={book}/>
                 </div>
             </div>
         );
@@ -212,57 +219,139 @@ BookInList.contextTypes = {
 };
 
 let BookDetail = React.createClass({
+    getInitialState: function () {
+        return {
+            book: {}
+        };
+    },
+    getAuthorNames: function (authors) {
+        let authorNames = _.reduce(authors,
+            function (res, author) {
+                return res + author.name + ', ';
+            }, '');
+
+        authorNames = authorNames.substr(0, authorNames.lastIndexOf(', '));
+
+        return authorNames;
+    },
+    componentDidMount: function () {
+        let bookId = this.props.location.state.id;
+        let self = this;
+
+        let publicKey = 'f63548d029560ca6297df5eab0ce1184';
+        let privateKey = '21fb208a38c9feaf9e8a043d0f6276eba10784e7';
+
+        let ts = new Date().getTime();
+
+        let hash = CryptoJS.MD5(ts + privateKey + publicKey).toString();
+
+        let url = 'http://gateway.marvel.com:80/v1/public/comics/' + bookId + '?apikey=' + publicKey;
+
+        url += '&ts=' + ts + '&hash=' + hash;
+
+        //get book info
+        //titre, image, description, nbr page, nom créateur, nom séries
+        $.get(url, function (res) {
+            if (res && res.data && res.data.results.length > 0) {
+                let data = res.data.results[0];
+
+                let authors = '';
+
+                if (data.creators && data.creators.items && data.creators.items.length > 0) {
+                    authors = self.getAuthorNames(data.creators.items);
+                }
+
+                let imageUrl = data.images[0].path + '.' + data.images[0].extension;
+                let price = data.prices[0].price;
+
+                let book = {
+                    id: data.id,
+                    title: data.title,
+                    image: imageUrl,
+                    description: data.description,
+                    pageCount: data.pageCount,
+                    authors: authors,
+                    serie: data.series.name,
+                    price: price
+                };
+
+                self.setState({
+                    book: book
+                });
+            }
+        });
+    },
     render: function () {
         return (
-            <div>
-                {/*todo*/}
-                book info to complete
+            <div className="row">
+                <img className="col-md-5" src={this.state.book.image}/>
+
+                <div className="col-md-offset-1 col-md-6">
+                    <form className="form-horizontal">
+                        <div className="form-group">
+                            <label className="col-sm-4 control-label">Title</label>
+                            <div className="col-sm-8">
+                                <p className="form-control-static">{this.state.book.title}</p>
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <label className="col-sm-4 control-label">Authors</label>
+                            <div className="col-sm-8">
+                                <p className="form-control-static">{this.state.book.authors}</p>
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <label className="col-sm-4 control-label">Series</label>
+                            <div className="col-sm-8">
+                                <p className="form-control-static">{this.state.book.serie}</p>
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <label className="col-sm-4 control-label">Description</label>
+                            <div className="col-sm-8">
+                                <p className="form-control-static">{this.state.book.description}</p>
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <label className="col-sm-4 control-label">Page count</label>
+                            <div className="col-sm-8">
+                                <p className="form-control-static">{this.state.book.pageCount}</p>
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <label className="col-sm-4 control-label">Price</label>
+                            <div className="col-sm-8">
+                                <p className="form-control-static">{this.state.book.price}</p>
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <div className="col-sm-12">
+                                <AddRemoveButtons book={this.state.book}/>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
         );
     }
 });
 
 let CartInfo = React.createClass({
-    // getInitialState: function () {
-    //     return {
-    //         booksInCart: [
-    //             {
-    //                 name: "yuan LIN 1",
-    //                 quantity: 1,
-    //                 price: 10
-    //             },
-    //             {
-    //                 name: "yuan LIN 1",
-    //                 quantity: 1,
-    //                 price: 10
-    //             },
-    //             {
-    //                 name: "yuan LIN 1",
-    //                 quantity: 1,
-    //                 price: 10
-    //             },
-    //             {
-    //                 name: "yuan LIN 1",
-    //                 quantity: 1,
-    //                 price: 10
-    //             },
-    //             {
-    //                 name: "yuan LIN 1",
-    //                 quantity: 1,
-    //                 price: 10
-    //             }
-    //         ]
-    //     };
-    // },
     render: function () {
-        // var nodes = this.state.booksInCart.map(function (book, key) {
-        const nodes = this.context.cart.map(function (book, key) {
-            return (
-                <BookInCart key={key} id={book.id} name={book.name} quantity={book.quantity}
-                            price={book.price}>
-                </BookInCart>
-            );
-        });
+        let nodes;
+
+        if (this.context.cart && this.context.cart.length > 0) {
+            //books have been added into the cart
+            nodes = this.context.cart.map(function (book, key) {
+                return (
+                    <BookInCart key={key} book={book}>
+                    </BookInCart>
+                );
+            });
+        } else {
+            //nothing inside the cart
+            nodes = <h3 className="text-center">Your cart is empty</h3>;
+        }
 
         return (
             <div className="row">
@@ -277,33 +366,21 @@ CartInfo.contextTypes = {
 };
 
 let BookInCart = React.createClass({
-    addBook: function (book) {
-        this.context.addToCart(book);
-    },
-    removeBook: function (book) {
-        this.context.removeFromCart(book);
-    },
     render: function () {
-        const btnMarginRight5 = {
-            margin: '0 5px',
-            width: '30px'
-        };
-
         return (
             <div className="row">
                 <div className="col-md-3">
-                    <span>Nom : {this.props.name}</span>
+                    <span>Title : {this.props.book.title}</span>
                 </div>
                 <div className="col-md-2">
-                    <span>Prix : {this.props.price}</span>
+                    <span>Price : {this.props.book.price}</span>
                 </div>
                 <div className="col-md-5">
-                    <span className="col-md-offset-4 col-md-4">Quantité : {this.props.quantity} </span>
-                    <button onClick={() => this.addBook(this.props)} style={btnMarginRight5}> +</button>
-                    <button onClick={() => this.removeBook(this.props)} style={btnMarginRight5}> -</button>
+                    <span className="col-md-offset-4 col-md-4">Quantity : {this.props.book.quantity} </span>
+                    <AddRemoveButtons book={this.props.book}/>
                 </div>
                 <div className="col-md-2">
-                    <span>Sous total : {this.props.quantity * this.props.price}</span>
+                    <span>Total : {this.props.book.quantity * this.props.book.price}</span>
                 </div>
             </div>
         );
@@ -311,7 +388,34 @@ let BookInCart = React.createClass({
 });
 
 BookInCart.contextTypes = {
-    cart: React.PropTypes.array,
+    addToCart: React.PropTypes.func,
+    removeFromCart: React.PropTypes.func
+};
+
+let AddRemoveButtons = React.createClass({
+    add: function (book) {
+        this.context.addToCart(book);
+    },
+    remove: function (book) {
+        this.context.removeFromCart(book);
+    },
+    render: function () {
+        return (
+            <div>
+                <a className="btn btn-default" role="button" title="Add to cart"
+                   onClick={() => this.add(this.props.book)}>
+                    <span className="glyphicon glyphicon-plus"></span>
+                </a>
+                <a className="btn btn-default" role="button" title="Remove from cart"
+                   onClick={() => this.remove(this.props.book)}>
+                    <span className="glyphicon glyphicon-minus"></span>
+                </a>
+            </div>
+        );
+    }
+});
+
+AddRemoveButtons.contextTypes = {
     addToCart: React.PropTypes.func,
     removeFromCart: React.PropTypes.func
 };
