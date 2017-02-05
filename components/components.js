@@ -12,26 +12,43 @@ let App = React.createClass({
             cart: []
         }
     },
+    getBooksCount: function () {
+        let quantityInfo = _.values(_.pluck(this.state.cart, 'quantity'));
+
+        return _.reduce(quantityInfo, function (sum, quantity) {
+            return sum + quantity;
+        }, 0);
+    },
     addToCart: function (book) {
-        let currentBook = _.find(this.state.cart, {id: book.id});
+        let tmpCart = this.state.cart;
+        let currentBook = _.find(tmpCart, {id: book.id});
 
         if (currentBook) {
             currentBook.quantity++;
         } else {
             let newBook = Object.assign({quantity: 1}, book);
-            this.state.cart.push(newBook);
+            tmpCart.push(newBook);
         }
+
+        this.setState({
+            cart: tmpCart
+        });
     },
     removeFromCart: function (book) {
-        let currentBook = _.find(this.state.cart, {id: book.id});
+        let tmpCart = this.state.cart;
+        let currentBook = _.find(tmpCart, {id: book.id});
 
         if (currentBook) {
             if (currentBook.quantity > 1) {
                 currentBook.quantity--;
             } else {
-                this.state.cart = _.reject(this.state.cart, {id: book.id});
+                tmpCart = _.reject(tmpCart, {id: book.id});
             }
         }
+
+        this.setState({
+            cart: tmpCart
+        });
     },
     getChildContext() {
         return {
@@ -45,8 +62,13 @@ let App = React.createClass({
             <div>
                 <h1 className="text-center">Book store</h1>
                 <ul className="pull-right list-inline">
-                    <li><Link to="/bookList">Liste</Link></li>
-                    <li><Link to="/cartInfo">Panier</Link></li>
+                    <li>
+                        <Link to="/bookList">Book list</Link>
+                    </li>
+                    <li> | </li>
+                    <li>
+                        <Link to="/cartInfo">Cart ({this.getBooksCount()} book(s) added)</Link>
+                    </li>
                 </ul>
                 <br/>
                 <br/>
