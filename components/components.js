@@ -1,4 +1,4 @@
-var {
+let {
     Router,
     Route,
     IndexRoute,
@@ -6,7 +6,7 @@ var {
     Link
 } = ReactRouter;
 
-var App = React.createClass({
+let App = React.createClass({
     getInitialState: function () {
         return {
             cart: []
@@ -65,7 +65,7 @@ App.childContextTypes = {
     cart: React.PropTypes.array
 };
 
-var BookList = React.createClass({
+let BookList = React.createClass({
     getInitialState: function () {
         return {
             books: []
@@ -73,7 +73,7 @@ var BookList = React.createClass({
     },
 
     getAuthorNames: function (authors) {
-        var authorNames = _.reduce(authors,
+        let authorNames = _.reduce(authors,
             function (res, author) {
                 return res + author.name + ', ';
             }, '');
@@ -82,22 +82,23 @@ var BookList = React.createClass({
 
         return authorNames;
     },
-
-    //init to get all book info
     componentDidMount: function () {
-        var self = this;
-        var publicKey = 'f63548d029560ca6297df5eab0ce1184';
-        var privateKey = '21fb208a38c9feaf9e8a043d0f6276eba10784e7';
-        var ts = new Date().getTime();
-        var hash = CryptoJS.MD5(ts + privateKey + publicKey).toString();
+        let self = this;
 
-        var url = "http://gateway.marvel.com:80/v1/public/comics?limit=6&offset=0&apikey=" + publicKey;
+        let publicKey = 'f63548d029560ca6297df5eab0ce1184';
+        let privateKey = '21fb208a38c9feaf9e8a043d0f6276eba10784e7';
+
+        let ts = new Date().getTime();
+
+        let hash = CryptoJS.MD5(ts + privateKey + publicKey).toString();
+
+        let url = "http://gateway.marvel.com:80/v1/public/comics?limit=6&offset=0&apikey=" + publicKey;
 
         url += "&ts=" + ts + "&hash=" + hash;
 
+        //get all book info
         $.get(url, function (res) {
             let booksInfo = _.map(res.data.results, function (book) {
-                console.log(book);
                 let authors = '';
 
                 if (book.creators && book.creators && book.creators.items.length > 0) {
@@ -121,7 +122,7 @@ var BookList = React.createClass({
     },
 
     render: function () {
-        var nodes = this.state.books.map(function (book, key) {
+        const nodes = this.state.books.map(function (book, key) {
             return (
                 <BookInList key={key} name={book.name} author={book.author} pageCount={book.pageCount}
                             thumbImg={book.thumbImg}>
@@ -137,7 +138,7 @@ var BookList = React.createClass({
     }
 });
 
-var BookInList = React.createClass({
+let BookInList = React.createClass({
     render: function () {
         const imgStyle = {
             width: '100%'
@@ -166,7 +167,7 @@ var BookInList = React.createClass({
     }
 });
 
-var BookDetail = React.createClass({
+let BookDetail = React.createClass({
     render: function () {
         return (
             <div>
@@ -177,7 +178,7 @@ var BookDetail = React.createClass({
     }
 });
 
-var CartInfo = React.createClass({
+let CartInfo = React.createClass({
     // getInitialState: function () {
     //     return {
     //         booksInCart: [
@@ -231,7 +232,7 @@ CartInfo.contextTypes = {
     cart: React.PropTypes.array
 };
 
-var BookInCart = React.createClass({
+let BookInCart = React.createClass({
     removeBook: function (book) {
         //todo : remove book
         console.log(book);
