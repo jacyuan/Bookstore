@@ -9,63 +9,9 @@ var {
 var App = React.createClass({
     getInitialState: function () {
         return {
-            jobs: []
+            cart: []
         }
     },
-
-    componentDidMount: function () {
-        var publicKey = 'f63548d029560ca6297df5eab0ce1184';
-        var privateKey = '21fb208a38c9feaf9e8a043d0f6276eba10784e7';
-        var ts = new Date().getTime();
-        var hash = CryptoJS.MD5(ts + privateKey + publicKey).toString();
-        var url = "https://gateway.marvel.com/v1/public/characters?apikey=" + publicKey;
-        url += "&ts=" + ts + "&hash=" + hash;
-
-        $.get(url, function (res) {
-            console.log(res);
-        });
-        // var _this = this;
-        // this.serverRequest =
-        //     axios
-        //         .get("http://codepen.io/jobs.json")
-        //         .then(function(result) {
-        //             console.log(result);
-        //             _this.setState({
-        //                 jobs: result.data.jobs
-        //             });
-        //         })
-    },
-    // getInitialState: function () {
-    //     return {
-    //         cart: [
-    //             {
-    //                 name: "yuan LIN 1",
-    //                 quantity: 1,
-    //                 price: 10
-    //             },
-    //             {
-    //                 name: "yuan LIN 1",
-    //                 quantity: 1,
-    //                 price: 10
-    //             },
-    //             {
-    //                 name: "yuan LIN 1",
-    //                 quantity: 1,
-    //                 price: 10
-    //             },
-    //             {
-    //                 name: "yuan LIN 1",
-    //                 quantity: 1,
-    //                 price: 10
-    //             },
-    //             {
-    //                 name: "yuan LIN 1",
-    //                 quantity: 1,
-    //                 price: 10
-    //             }
-    //         ]
-    //     };
-    // },
     getChildContext() {
         return {
             cart: [
@@ -122,46 +68,58 @@ App.childContextTypes = {
 var BookList = React.createClass({
     getInitialState: function () {
         return {
-            books: [
-                {
-                    author: "yuan LIN 1",
-                    name: "book 1",
-                    pageCount: 100,
-                    thumbImg: "http://reactjs.cn/react/img/logo.svg"
-                },
-                {
-                    author: "yuan LIN 2",
-                    name: "book 1",
-                    pageCount: 200,
-                    thumbImg: "http://reactjs.cn/react/img/logo.svg"
-                },
-                {
-                    author: "yuan LIN 3",
-                    name: "book 1",
-                    pageCount: 200,
-                    thumbImg: "http://reactjs.cn/react/img/logo.svg"
-                },
-                {
-                    author: "yuan LIN 4",
-                    name: "book 1",
-                    pageCount: 200,
-                    thumbImg: "http://reactjs.cn/react/img/logo.svg"
-                },
-                {
-                    author: "yuan LIN 5",
-                    name: "book 1",
-                    pageCount: 200,
-                    thumbImg: "http://reactjs.cn/react/img/logo.svg"
-                },
-                {
-                    author: "yuan LIN 6",
-                    name: "book 1",
-                    pageCount: 200,
-                    thumbImg: "http://reactjs.cn/react/img/logo.svg"
-                }
-            ]
+            books: []
         };
     },
+
+    getAuthorNames: function (authors) {
+        var authorNames = _.reduce(authors,
+            function (res, author) {
+                return res + author.name + ', ';
+            }, '');
+
+        authorNames = authorNames.substr(0, authorNames.lastIndexOf(', '));
+
+        return authorNames;
+    },
+
+    //init to get all book info
+    componentDidMount: function () {
+        var self = this;
+        var publicKey = 'f63548d029560ca6297df5eab0ce1184';
+        var privateKey = '21fb208a38c9feaf9e8a043d0f6276eba10784e7';
+        var ts = new Date().getTime();
+        var hash = CryptoJS.MD5(ts + privateKey + publicKey).toString();
+
+        var url = "http://gateway.marvel.com:80/v1/public/comics?limit=6&offset=0&apikey=" + publicKey;
+
+        url += "&ts=" + ts + "&hash=" + hash;
+
+        $.get(url, function (res) {
+            let booksInfo = _.map(res.data.results, function (book) {
+                console.log(book);
+                let authors = '';
+
+                if (book.creators && book.creators && book.creators.items.length > 0) {
+                    authors = self.getAuthorNames(book.creators.items);
+                }
+
+                let thumbImg = book.thumbnail.path + '.' + book.thumbnail.extension;
+
+                return {
+                    name: book.title,
+                    author: authors,
+                    thumbImg: thumbImg,
+                    pageCount: book.pageCount
+                };
+            });
+
+            self.setState({
+                books: booksInfo
+            });
+        });
+    },
+
     render: function () {
         var nodes = this.state.books.map(function (book, key) {
             return (
@@ -189,20 +147,21 @@ var BookInList = React.createClass({
         };
 
         return (
-            <Link to="/bookDetail">
-                <div className="col-md-4" style={marginBottom5}>
+
+            <div className="col-md-4" style={marginBottom5}>
+                <Link to="/bookDetail">
                     <div className="col-md-5">
                         <img src={this.props.thumbImg} style={imgStyle}/>
                     </div>
+                </Link>
 
-                    <div className="col-md-7">
-                        <p style={marginBottom5}>Nom : {this.props.name}</p>
-                        <p style={marginBottom5}>Auteur : {this.props.author}</p>
-                        <p style={marginBottom5}>Nbr pages : {this.props.pageCount}</p>
-                        <p style={marginBottom5}>... ...</p>
-                    </div>
+                <div className="col-md-7">
+                    <p style={marginBottom5}>{this.props.name}</p>
+                    <p style={marginBottom5}>{this.props.author}</p>
+                    <p style={marginBottom5}>{this.props.pageCount} pages</p>
+                    <p style={marginBottom5}>... ...</p>
                 </div>
-            </Link>
+            </div>
         );
     }
 });
