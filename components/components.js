@@ -12,35 +12,32 @@ let App = React.createClass({
             cart: []
         }
     },
+    addToCart: function (book) {
+        let currentBook = _.find(this.state.cart, {id: book.id});
+
+        if (currentBook) {
+            currentBook.quantity++;
+        } else {
+            let newBook = Object.assign({quantity: 1}, book);
+            this.state.cart.push(newBook);
+        }
+    },
+    removeFromCart: function (book) {
+        let currentBook = _.find(this.state.cart, {id: book.id});
+
+        if (currentBook) {
+            if (currentBook.quantity > 1) {
+                currentBook.quantity--;
+            } else {
+                this.state.cart = _.reject(this.state.cart, {id: book.id});
+            }
+        }
+    },
     getChildContext() {
         return {
-            cart: [
-                {
-                    name: "yuan LIN 1",
-                    quantity: 1,
-                    price: 10
-                },
-                {
-                    name: "yuan LIN 1",
-                    quantity: 1,
-                    price: 10
-                },
-                {
-                    name: "yuan LIN 1",
-                    quantity: 1,
-                    price: 10
-                },
-                {
-                    name: "yuan LIN 1",
-                    quantity: 1,
-                    price: 10
-                },
-                {
-                    name: "yuan LIN 1",
-                    quantity: 1,
-                    price: 10
-                }
-            ]
+            cart: this.state.cart,
+            addToCart: this.addToCart,
+            removeFromCart: this.removeFromCart,
         };
     },
     render: function () {
@@ -62,7 +59,9 @@ let App = React.createClass({
 });
 
 App.childContextTypes = {
-    cart: React.PropTypes.array
+    cart: React.PropTypes.array,
+    addToCart: React.PropTypes.func,
+    removeFromCart: React.PropTypes.func
 };
 
 let BookList = React.createClass({
@@ -82,6 +81,7 @@ let BookList = React.createClass({
 
         return authorNames;
     },
+
     componentDidMount: function () {
         let self = this;
 
@@ -108,6 +108,7 @@ let BookList = React.createClass({
                 let thumbImg = book.thumbnail.path + '.' + book.thumbnail.extension;
 
                 return {
+                    id: book.id,
                     name: book.title,
                     author: authors,
                     thumbImg: thumbImg,
@@ -124,7 +125,7 @@ let BookList = React.createClass({
     render: function () {
         const nodes = this.state.books.map(function (book, key) {
             return (
-                <BookInList key={key} name={book.name} author={book.author} pageCount={book.pageCount}
+                <BookInList key={key} id={book.id} name={book.name} author={book.author} pageCount={book.pageCount}
                             thumbImg={book.thumbImg}>
                 </BookInList>
             );
@@ -139,6 +140,12 @@ let BookList = React.createClass({
 });
 
 let BookInList = React.createClass({
+    addBook: function (item) {
+        this.context.addToCart(item);
+    },
+    removeBook: function (item) {
+        this.context.removeFromCart(item);
+    },
     render: function () {
         const imgStyle = {
             width: '100%'
@@ -148,7 +155,6 @@ let BookInList = React.createClass({
         };
 
         return (
-
             <div className="col-md-4" style={marginBottom5}>
                 <Link to="/bookDetail">
                     <div className="col-md-5">
@@ -160,12 +166,28 @@ let BookInList = React.createClass({
                     <p style={marginBottom5}>{this.props.name}</p>
                     <p style={marginBottom5}>{this.props.author}</p>
                     <p style={marginBottom5}>{this.props.pageCount} pages</p>
-                    <p style={marginBottom5}>... ...</p>
+                    <p style={marginBottom5}>
+                        <a className="btn btn-default" role="button" title="Add to cart"
+                           onClick={() => this.addBook(this.props)}>
+                            +
+                        </a>
+
+                        <a className="btn btn-default" role="button" title="Remove from cart"
+                           onClick={() => this.removeBook(this.props)}>
+                            -
+                        </a>
+                    </p>
                 </div>
             </div>
         );
     }
 });
+
+BookInList.contextTypes = {
+    cart: React.PropTypes.array,
+    addToCart: React.PropTypes.func,
+    removeFromCart: React.PropTypes.func
+};
 
 let BookDetail = React.createClass({
     render: function () {
@@ -212,9 +234,9 @@ let CartInfo = React.createClass({
     // },
     render: function () {
         // var nodes = this.state.booksInCart.map(function (book, key) {
-        var nodes = this.context.cart.map(function (book, key) {
+        const nodes = this.context.cart.map(function (book, key) {
             return (
-                <BookInCart key={key} name={book.name} quantity={book.quantity}
+                <BookInCart key={key} id={book.id} name={book.name} quantity={book.quantity}
                             price={book.price}>
                 </BookInCart>
             );
@@ -233,13 +255,11 @@ CartInfo.contextTypes = {
 };
 
 let BookInCart = React.createClass({
-    removeBook: function (book) {
-        //todo : remove book
-        console.log(book);
+    addBook: function (book) {
+        this.context.addToCart(book);
     },
     removeBook: function (book) {
-        //todo : add book
-        console.log(book);
+        this.context.removeFromCart(book);
     },
     render: function () {
         const btnMarginRight5 = {
@@ -257,7 +277,7 @@ let BookInCart = React.createClass({
                 </div>
                 <div className="col-md-5">
                     <span className="col-md-offset-4 col-md-4">Quantité : {this.props.quantity} </span>
-                    <button onClick={() => this.removeBook(this.props)} style={btnMarginRight5}> +</button>
+                    <button onClick={() => this.addBook(this.props)} style={btnMarginRight5}> +</button>
                     <button onClick={() => this.removeBook(this.props)} style={btnMarginRight5}> -</button>
                 </div>
                 <div className="col-md-2">
@@ -267,6 +287,12 @@ let BookInCart = React.createClass({
         );
     }
 });
+
+BookInCart.contextTypes = {
+    cart: React.PropTypes.array,
+    addToCart: React.PropTypes.func,
+    removeFromCart: React.PropTypes.func
+};
 
 ReactDOM.render(
     <Router>
