@@ -407,6 +407,13 @@ let CartInfo = React.createClass({
 
         return '';
     },
+    getTotalPrice: function () {
+        let res = Number(_.reduce(this.context.cart, function (sum, book) {
+            return sum + book.price * book.quantity;
+        }, 0));
+
+        return res.toFixed(2);
+    },
     render: function () {
         let nodes;
 
@@ -445,6 +452,11 @@ let CartInfo = React.createClass({
                 <tbody>
                 {nodes}
                 </tbody>
+                <tfoot>
+                <tr>
+                    <td colSpan="100" className="text-center">Total : {this.getTotalPrice()}</td>
+                </tr>
+                </tfoot>
             </table>
         );
     }
