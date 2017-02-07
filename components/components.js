@@ -68,7 +68,12 @@ let App = React.createClass({
                     </li>
                     <li> |</li>
                     <li>
-                        <Link to="/cartInfo">Cart ({this.getBooksCount()} book(s) added)</Link>
+                        <Link to="/cartInfo">
+                            <button className="btn btn-primary" type="button">
+                                <span className="glyphicon glyphicon-shopping-cart"></span> <span
+                                className="badge">{this.getBooksCount()}</span>
+                            </button>
+                        </Link>
                     </li>
                 </ul>
                 <br/>
@@ -369,16 +374,22 @@ let CartInfo = React.createClass({
 });
 
 CartInfo.contextTypes = {
-    cart: React.PropTypes.array
+    cart: React.PropTypes.array,
+    addToCart: React.PropTypes.func,
+    removeFromCart: React.PropTypes.func
 };
 //endregion
 
 //region book in cart
 let BookInCart = React.createClass({
+    getTotalPrice: function () {
+        let res = new Number(this.props.book.quantity * this.props.book.price);
+        return res.toFixed(2);
+    },
     render: function () {
         return (
             <div className="row">
-                <div className="col-md-3">
+                <div className="col-md-4">
                     <Link to={{pathname: '/bookDetail', state: {id: this.props.book.id}}}>
                         <span>Title : {this.props.book.title}</span>
                     </Link>
@@ -386,12 +397,12 @@ let BookInCart = React.createClass({
                 <div className="col-md-2">
                     <span>Price : {this.props.book.price}</span>
                 </div>
-                <div className="col-md-5">
+                <div className="col-md-4">
                     <span className="col-md-offset-4 col-md-4">Quantity : {this.props.book.quantity} </span>
                     <AddRemoveButtons book={this.props.book}/>
                 </div>
                 <div className="col-md-2">
-                    <span>Total : {this.props.book.quantity * this.props.book.price}</span>
+                    <span>Total : {this.getTotalPrice()}</span>
                 </div>
             </div>
         );
@@ -415,11 +426,11 @@ let AddRemoveButtons = React.createClass({
     render: function () {
         return (
             <div>
-                <a className="btn btn-default" role="button" title="Add to cart"
+                <a className="btn btn-default btn-sm" role="button" title="Add to cart"
                    onClick={() => this.add(this.props.book)}>
                     <span className="glyphicon glyphicon-plus"></span>
                 </a>
-                <a className="btn btn-default" role="button" title="Remove from cart"
+                <a className="btn btn-default btn-sm" role="button" title="Remove from cart"
                    onClick={() => this.remove(this.props.book)}>
                     <span className="glyphicon glyphicon-minus"></span>
                 </a>
@@ -427,6 +438,7 @@ let AddRemoveButtons = React.createClass({
         );
     }
 });
+
 
 AddRemoveButtons.contextTypes = {
     addToCart: React.PropTypes.func,
