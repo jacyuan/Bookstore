@@ -6,6 +6,7 @@ let {
     Link
 } = ReactRouter;
 
+//region main
 let App = React.createClass({
     getInitialState: function () {
         return {
@@ -85,7 +86,9 @@ App.childContextTypes = {
     addToCart: React.PropTypes.func,
     removeFromCart: React.PropTypes.func
 };
+//endregion
 
+//region book list
 let BookList = React.createClass({
     getInitialState: function () {
         return {
@@ -217,7 +220,9 @@ BookInList.contextTypes = {
     addToCart: React.PropTypes.func,
     removeFromCart: React.PropTypes.func
 };
+//endregion
 
+//region book detail
 let BookDetail = React.createClass({
     getInitialState: function () {
         return {
@@ -335,7 +340,9 @@ let BookDetail = React.createClass({
         );
     }
 });
+//endregion
 
+//region cart info
 let CartInfo = React.createClass({
     render: function () {
         let nodes;
@@ -364,13 +371,17 @@ let CartInfo = React.createClass({
 CartInfo.contextTypes = {
     cart: React.PropTypes.array
 };
+//endregion
 
+//region book in cart
 let BookInCart = React.createClass({
     render: function () {
         return (
             <div className="row">
                 <div className="col-md-3">
-                    <span>Title : {this.props.book.title}</span>
+                    <Link to={{pathname: '/bookDetail', state: {id: this.props.book.id}}}>
+                        <span>Title : {this.props.book.title}</span>
+                    </Link>
                 </div>
                 <div className="col-md-2">
                     <span>Price : {this.props.book.price}</span>
@@ -391,7 +402,9 @@ BookInCart.contextTypes = {
     addToCart: React.PropTypes.func,
     removeFromCart: React.PropTypes.func
 };
+//endregion
 
+//region add/remove buttons
 let AddRemoveButtons = React.createClass({
     add: function (book) {
         this.context.addToCart(book);
@@ -419,6 +432,7 @@ AddRemoveButtons.contextTypes = {
     addToCart: React.PropTypes.func,
     removeFromCart: React.PropTypes.func
 };
+//endregion
 
 ReactDOM.render(
     <Router>
