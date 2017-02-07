@@ -55,7 +55,7 @@ let App = React.createClass({
         return {
             cart: this.state.cart,
             addToCart: this.addToCart,
-            removeFromCart: this.removeFromCart,
+            removeFromCart: this.removeFromCart
         };
     },
     render: function () {
@@ -349,10 +349,63 @@ let BookDetail = React.createClass({
 
 //region cart info
 let CartInfo = React.createClass({
+    getInitialState: function () {
+        return {
+            coloneToSort: '',
+            sortByAsc: true
+        };
+    },
     getWidth: function (widthInPercentage) {
         return {
             width: widthInPercentage + '%'
         };
+    },
+    sortBooks: function (coloneName) {
+        if (coloneName === this.state.coloneToSort) {
+
+            if (this.state.sortByAsc) {
+                this.context.cart = _.sortBy(this.context.cart, coloneName).reverse();
+            } else {
+                this.context.cart = _.sortBy(this.context.cart, coloneName);
+            }
+
+            this.setState({
+                sortByAsc: !this.state.sortByAsc
+            });
+        } else {
+            this.setState({
+                coloneToSort: coloneName,
+                sortByAsc: true
+            });
+
+            this.context.cart = _.sortBy(this.context.cart, coloneName);
+        }
+    },
+    getOrderIcon: function (coloneNanme) {
+        switch (coloneNanme.toLowerCase()) {
+            case 'title':
+                return this.getTitleOrderIcon();
+            case 'quantity':
+                return this.getQuantityOrderIcon();
+        }
+    },
+    getTitleOrderIcon: function () {
+        if ('title' === this.state.coloneToSort) {
+            return this.state.sortByAsc
+                ? 'glyphicon glyphicon-sort-by-alphabet'
+                : 'glyphicon glyphicon-sort-by-alphabet-alt';
+        }
+
+        return '';
+    },
+    getQuantityOrderIcon: function () {
+        if ('quantity' === this.state.coloneToSort) {
+            return this.state.sortByAsc
+                ? 'glyphicon glyphicon-sort-by-order'
+                : 'glyphicon glyphicon-sort-by-order-alt';
+        }
+
+        return '';
     },
     render: function () {
         let nodes;
@@ -376,9 +429,15 @@ let CartInfo = React.createClass({
             <table className="table table-bordered">
                 <thead>
                 <tr>
-                    <th style={this.getWidth(45)}>Title</th>
+                    <th style={this.getWidth(45)}
+                        onClick={() => this.sortBooks("title")}>
+                        Title <span className={this.getOrderIcon('title')}></span>
+                    </th>
                     <th style={this.getWidth(20)}>Unit Price</th>
-                    <th style={this.getWidth(10)}>Quantity</th>
+                    <th style={this.getWidth(10)}
+                        onClick={() => this.sortBooks("quantity")}>
+                        Quantity <span className={this.getOrderIcon('quantity')}></span>
+                    </th>
                     <th style={this.getWidth(15)}>Subtotal</th>
                     <th style={this.getWidth(10)}>Actions</th>
                 </tr>
@@ -396,6 +455,7 @@ CartInfo.contextTypes = {
     addToCart: React.PropTypes.func,
     removeFromCart: React.PropTypes.func
 };
+
 //endregion
 
 //region book in cart
@@ -425,6 +485,7 @@ BookInCart.contextTypes = {
     addToCart: React.PropTypes.func,
     removeFromCart: React.PropTypes.func
 };
+
 //endregion
 
 //region add/remove buttons
@@ -451,7 +512,6 @@ let AddRemoveButtons = React.createClass({
     }
 });
 
-
 AddRemoveButtons.contextTypes = {
     addToCart: React.PropTypes.func,
     removeFromCart: React.PropTypes.func
@@ -466,6 +526,7 @@ ReactDOM.render(
             <Route path="cartInfo" component={CartInfo}/>
             <Route path="/bookDetail" component={BookDetail}/>
         </Route>
-    </Router>,
+    </Router>
+    ,
     document.getElementById('content')
 );
