@@ -335,7 +335,7 @@ let BookDetail = React.createClass({
                             </div>
                         </div>
                         <div className="form-group">
-                            <div className="col-sm-12">
+                            <div className="col-sm-offset-4 col-sm-8">
                                 <AddRemoveButtons book={this.state.book}/>
                             </div>
                         </div>
@@ -349,6 +349,11 @@ let BookDetail = React.createClass({
 
 //region cart info
 let CartInfo = React.createClass({
+    getWidth: function (widthInPercentage) {
+        return {
+            width: widthInPercentage + '%'
+        };
+    },
     render: function () {
         let nodes;
 
@@ -362,13 +367,26 @@ let CartInfo = React.createClass({
             });
         } else {
             //nothing inside the cart
-            nodes = <h3 className="text-center">Your cart is empty</h3>;
+            nodes = <tr>
+                <td colSpan="100" className="text-center">Your cart is empty</td>
+            </tr>;
         }
 
         return (
-            <div className="row">
+            <table className="table table-bordered">
+                <thead>
+                <tr>
+                    <th style={this.getWidth(45)}>Title</th>
+                    <th style={this.getWidth(20)}>Unit Price</th>
+                    <th style={this.getWidth(10)}>Quantity</th>
+                    <th style={this.getWidth(15)}>Subtotal</th>
+                    <th style={this.getWidth(10)}>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
                 {nodes}
-            </div>
+                </tbody>
+            </table>
         );
     }
 });
@@ -383,28 +401,22 @@ CartInfo.contextTypes = {
 //region book in cart
 let BookInCart = React.createClass({
     getTotalPrice: function () {
-        let res = new Number(this.props.book.quantity * this.props.book.price);
+        let res = Number(this.props.book.quantity * this.props.book.price);
         return res.toFixed(2);
     },
     render: function () {
         return (
-            <div className="row">
-                <div className="col-md-4">
+            <tr>
+                <td>
                     <Link to={{pathname: '/bookDetail', state: {id: this.props.book.id}}}>
-                        <span>Title : {this.props.book.title}</span>
+                        <span>{this.props.book.title}</span>
                     </Link>
-                </div>
-                <div className="col-md-2">
-                    <span>Price : {this.props.book.price}</span>
-                </div>
-                <div className="col-md-4">
-                    <span className="col-md-offset-4 col-md-4">Quantity : {this.props.book.quantity} </span>
-                    <AddRemoveButtons book={this.props.book}/>
-                </div>
-                <div className="col-md-2">
-                    <span>Total : {this.getTotalPrice()}</span>
-                </div>
-            </div>
+                </td>
+                <td>{this.props.book.price}</td>
+                <td>{this.props.book.quantity}</td>
+                <td>{this.getTotalPrice()}</td>
+                <td><AddRemoveButtons book={this.props.book}/></td>
+            </tr>
         );
     }
 });
@@ -425,15 +437,15 @@ let AddRemoveButtons = React.createClass({
     },
     render: function () {
         return (
-            <div>
-                <a className="btn btn-default btn-sm" role="button" title="Add to cart"
-                   onClick={() => this.add(this.props.book)}>
+            <div className="btn-group" role="group">
+                <button type="button" className="btn btn-default" title="Add to cart"
+                        onClick={() => this.add(this.props.book)}>
                     <span className="glyphicon glyphicon-plus"></span>
-                </a>
-                <a className="btn btn-default btn-sm" role="button" title="Remove from cart"
-                   onClick={() => this.remove(this.props.book)}>
+                </button>
+                <button type="button" className="btn btn-default" title="Remove from cart"
+                        onClick={() => this.remove(this.props.book)}>
                     <span className="glyphicon glyphicon-minus"></span>
-                </a>
+                </button>
             </div>
         );
     }
