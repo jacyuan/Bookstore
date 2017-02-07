@@ -360,6 +360,15 @@ let CartInfo = React.createClass({
             width: widthInPercentage + '%'
         };
     },
+    canCheckOut: function () {
+        if (this.context.cart) {
+            return _.find(this.context.cart, function (book) {
+                return book.quantity > 0;
+            });
+        }
+
+        return false;
+    },
     sortBooks: function (coloneName) {
         if (coloneName === this.state.coloneToSort) {
 
@@ -433,31 +442,36 @@ let CartInfo = React.createClass({
         }
 
         return (
-            <table className="table table-bordered">
-                <thead>
-                <tr>
-                    <th style={this.getWidth(45)}
-                        onClick={() => this.sortBooks("title")}>
-                        Title <span className={this.getOrderIcon('title')}></span>
-                    </th>
-                    <th style={this.getWidth(20)}>Unit Price</th>
-                    <th style={this.getWidth(10)}
-                        onClick={() => this.sortBooks("quantity")}>
-                        Quantity <span className={this.getOrderIcon('quantity')}></span>
-                    </th>
-                    <th style={this.getWidth(15)}>Subtotal</th>
-                    <th style={this.getWidth(10)}>Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                {nodes}
-                </tbody>
-                <tfoot>
-                <tr>
-                    <td colSpan="100" className="text-center">Total : {this.getTotalPrice()}</td>
-                </tr>
-                </tfoot>
-            </table>
+            <div>
+                <table className="table table-bordered table-hover col-md-10">
+                    <thead>
+                    <tr>
+                        <th style={this.getWidth(45)}
+                            onClick={() => this.sortBooks("title")}>
+                            Title <span className={this.getOrderIcon('title')}></span>
+                        </th>
+                        <th style={this.getWidth(20)}>Unit Price</th>
+                        <th style={this.getWidth(10)}
+                            onClick={() => this.sortBooks("quantity")}>
+                            Quantity <span className={this.getOrderIcon('quantity')}></span>
+                        </th>
+                        <th style={this.getWidth(15)}>Subtotal</th>
+                        <th style={this.getWidth(10)}>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {nodes}
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td colSpan="100" className="text-center">Total : {this.getTotalPrice()}</td>
+                    </tr>
+                    </tfoot>
+                </table>
+                <div className="col-md-12">
+                    <button className="btn btn-success pull-right" disabled={!this.canCheckOut()}>Check out</button>
+                </div>
+            </div>
         );
     }
 });
