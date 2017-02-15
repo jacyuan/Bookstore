@@ -188,8 +188,9 @@ let BookInList = React.createClass({
         const imgStyle = {
             width: '100%'
         };
-        const marginBottom5 = {
-            margin: '0 0 5px'
+        const bookStyle = {
+            margin: '0 0 5px',
+            height:'350px'
         };
 
         let book = {
@@ -202,7 +203,7 @@ let BookInList = React.createClass({
         };
 
         return (
-            <div className="col-md-4" style={marginBottom5}>
+            <div className="col-md-6" style={bookStyle}>
                 <div className="col-md-5">
                     <Link to={{pathname: '/bookDetail', state: {id: this.props.id}}}>
                         <img src={this.props.thumbImg} style={imgStyle}/>
@@ -210,9 +211,9 @@ let BookInList = React.createClass({
                 </div>
 
                 <div className="col-md-7">
-                    <p style={marginBottom5}>{this.props.title}</p>
-                    <p style={marginBottom5}>{this.props.authors}</p>
-                    <p style={marginBottom5}>{this.props.pageCount} pages</p>
+                    <p>{this.props.title}</p>
+                    <p>{this.props.authors}</p>
+                    <p>{this.props.pageCount} pages</p>
                     <AddRemoveButtons book={book}/>
                 </div>
             </div>
