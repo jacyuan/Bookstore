@@ -370,11 +370,6 @@ let CartInfo = React.createClass({
 
         return false;
     },
-    checkOut: function () {
-        if (this.canCheckOut()) {
-
-        }
-    },
     sortBooks: function (coloneName) {
         if (coloneName === this.state.coloneToSort) {
 
@@ -477,7 +472,6 @@ let CartInfo = React.createClass({
                 <div className="col-md-12">
                     <Link to="/checkOut">
                         <button className="btn btn-success pull-right"
-                                onClick={() => this.checkOut()}
                                 disabled={!this.canCheckOut()}>Check out
                         </button>
                     </Link>
@@ -530,10 +524,30 @@ let CheckOut = React.createClass({
     getInitialState: function () {
         return {};
     },
+    componentWillMount:function(){
+        let validateCondition = this.contextTypes && this.contextTypes.cart && this.contextTypes.cart.length > 0;
+
+        if (!validateCondition) {
+            //todo redirect to home page
+        }
+    },
     render: function () {
-        return (<div>TODO</div>);
+        return (
+            <form>
+                <div className="form-group">
+                    <label>Email address</label>
+                    <input type="email" className="form-control" id="exampleInputEmail1" placeholder="Email"/>
+                </div>
+                <button type="submit" className="btn btn-default">Submit</button>
+            </form>
+        );
     }
 });
+
+CheckOut.contextTypes = {
+    cart: React.PropTypes.array
+};
+
 //endregion
 
 //region add/remove buttons
