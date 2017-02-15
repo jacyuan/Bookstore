@@ -70,8 +70,8 @@ let App = React.createClass({
                     <li>
                         <Link to="/cartInfo">
                             <button className="btn btn-primary" type="button">
-                                <span className="glyphicon glyphicon-shopping-cart"></span> <span
-                                className="badge">{this.getBooksCount()}</span>
+                                <span className="glyphicon glyphicon-shopping-cart"></span>
+                                <span className="badge">{this.getBooksCount()}</span>
                             </button>
                         </Link>
                     </li>
@@ -190,7 +190,7 @@ let BookInList = React.createClass({
         };
         const bookStyle = {
             margin: '0 0 5px',
-            height:'350px'
+            height: '350px'
         };
 
         let book = {
@@ -370,6 +370,11 @@ let CartInfo = React.createClass({
 
         return false;
     },
+    checkOut: function () {
+        if (this.canCheckOut()) {
+
+        }
+    },
     sortBooks: function (coloneName) {
         if (coloneName === this.state.coloneToSort) {
 
@@ -470,7 +475,12 @@ let CartInfo = React.createClass({
                     </tfoot>
                 </table>
                 <div className="col-md-12">
-                    <button className="btn btn-success pull-right" disabled={!this.canCheckOut()}>Check out</button>
+                    <Link to="/checkOut">
+                        <button className="btn btn-success pull-right"
+                                onClick={() => this.checkOut()}
+                                disabled={!this.canCheckOut()}>Check out
+                        </button>
+                    </Link>
                 </div>
             </div>
         );
@@ -515,6 +525,17 @@ BookInCart.contextTypes = {
 
 //endregion
 
+//region checkout
+let CheckOut = React.createClass({
+    getInitialState: function () {
+        return {};
+    },
+    render: function () {
+        return (<div>TODO</div>);
+    }
+});
+//endregion
+
 //region add/remove buttons
 let AddRemoveButtons = React.createClass({
     add: function (book) {
@@ -551,9 +572,9 @@ ReactDOM.render(
             <IndexRoute component={BookList}/>
             <Route path="bookList" component={BookList}/>
             <Route path="cartInfo" component={CartInfo}/>
+            <Route path="checkOut" component={CheckOut}/>
             <Route path="/bookDetail" component={BookDetail}/>
         </Route>
-    </Router>
-    ,
+    </Router>,
     document.getElementById('content')
 );
