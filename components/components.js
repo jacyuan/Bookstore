@@ -3,7 +3,8 @@ let {
     Route,
     IndexRoute,
     IndexLink,
-    Link
+    Link,
+    browserHistory
 } = ReactRouter;
 
 //region main
@@ -58,7 +59,7 @@ let App = React.createClass({
             removeFromCart: this.removeFromCart
         };
     },
-    render: function () {
+    render () {
         return (
             <div>
                 <h1 className="text-center">Book store</h1>
@@ -155,7 +156,7 @@ let BookList = React.createClass({
         });
     },
 
-    render: function () {
+    render () {
         const nodes = this.state.books.map(function (book, key) {
             return (
                 <BookInList key={key}
@@ -184,7 +185,7 @@ let BookInList = React.createClass({
     removeBook: function (item) {
         this.context.removeFromCart(item);
     },
-    render: function () {
+    render () {
         const imgStyle = {
             width: '100%'
         };
@@ -292,7 +293,7 @@ let BookDetail = React.createClass({
             }
         });
     },
-    render: function () {
+    render () {
         return (
             <div className="row">
                 <img className="col-md-5" src={this.state.book.image}/>
@@ -424,7 +425,7 @@ let CartInfo = React.createClass({
 
         return res.toFixed(2);
     },
-    render: function () {
+    render() {
         let nodes;
 
         if (this.context.cart && this.context.cart.length > 0) {
@@ -495,7 +496,7 @@ let BookInCart = React.createClass({
         let res = Number(this.props.book.quantity * this.props.book.price);
         return res.toFixed(2);
     },
-    render: function () {
+    render () {
         return (
             <tr>
                 <td>
@@ -522,24 +523,89 @@ BookInCart.contextTypes = {
 //region checkout
 let CheckOut = React.createClass({
     getInitialState: function () {
-        return {};
+        return {
+            errorElements: {
+                email: false,
+                street: false,
+                city: false,
+                dueDate: false
+            }
+        };
     },
-    componentWillMount:function(){
-        let validateCondition = this.contextTypes && this.contextTypes.cart && this.contextTypes.cart.length > 0;
-
-        if (!validateCondition) {
-            //todo redirect to home page
+    checkOut: function () {
+    },
+    getFormGroupClassName(eleName){
+        if (this.state.errorElements && this.state.errorElements[eleName]) {
+            return 'form-group has-error';
         }
+
+        return 'form-group';
     },
-    render: function () {
-        return (
-            <form>
+    getErrorIconClassName(eleName){
+        if (this.state.errorElements && this.state.errorElements[eleName]) {
+            return 'col-sm-1 btn glyphicon glyphicon-exclamation-sign';
+        }
+
+        return '';
+    },
+    render () {
+        let books = this.context.cart.map(function (book, key) {
+            return (
                 <div className="form-group">
-                    <label>Email address</label>
-                    <input type="email" className="form-control" id="exampleInputEmail1" placeholder="Email"/>
+                    <label className="col-sm-8 control-label">{book.title}</label>
+                    <div className="col-sm-2">
+                        <p className="form-control-static">{book.quantity}</p>
+                    </div>
                 </div>
-                <button type="submit" className="btn btn-default">Submit</button>
-            </form>
+            );
+        });
+
+        let errorIconStyle={
+            color: '#a94442'
+        };
+
+        return (
+            <div className="col-md-offset-2 col-md-8">
+                <form className="form-horizontal">
+                    <div className={this.getFormGroupClassName('email')}>
+                        <label className="col-sm-4 control-label">Email address *</label>
+                        <div className="col-sm-7">
+                            <input type="email" className="form-control" id="exampleInputEmail1" placeholder="Email"/>
+                        </div>
+                        <span className={this.getErrorIconClassName('email')} title="error" style={errorIconStyle}></span>
+                    </div>
+                    <div className={this.getFormGroupClassName('street')}>
+                        <label className="col-sm-4 control-label">Street *</label>
+                        <div className="col-sm-7">
+                            <input type="text" className="form-control" id="street" placeholder="Street"/>
+                        </div>
+                        <span className={this.getErrorIconClassName('street')} title="error" style={errorIconStyle}></span>
+                    </div>
+                    <div className={this.getFormGroupClassName('city')}>
+                        <label className="col-sm-4 control-label">City *</label>
+                        <div className="col-sm-7">
+                            <input type="text" className="form-control" id="city" placeholder="City"/>
+                        </div>
+                        <span className={this.getErrorIconClassName('city')} title="error" style={errorIconStyle}></span>
+                    </div>
+                    <div className={this.getFormGroupClassName('dueDate')}>
+                        <label className="col-sm-4 control-label">Due date of delivery *</label>
+                        <div className="col-sm-7">
+                            <input type="date" className="form-control" id="dueDate" placeholder="dd/mm/yyyy"/>
+                        </div>
+                        <span className={this.getErrorIconClassName('dueDate')} title="error" style={errorIconStyle}></span>
+                    </div>
+                    <br/>
+                    {books}
+                </form>
+
+                <br/>
+
+                <button type="button" className="col-md-3 pull-right btn btn-default"
+                        onClick={() => this.checkOut()}>
+                    Check out
+                </button>
+            </div>
         );
     }
 });
@@ -547,7 +613,6 @@ let CheckOut = React.createClass({
 CheckOut.contextTypes = {
     cart: React.PropTypes.array
 };
-
 //endregion
 
 //region add/remove buttons
@@ -558,7 +623,7 @@ let AddRemoveButtons = React.createClass({
     remove: function (book) {
         this.context.removeFromCart(book);
     },
-    render: function () {
+    render () {
         return (
             <div className="btn-group" role="group">
                 <button type="button" className="btn btn-default" title="Add to cart"
@@ -584,11 +649,12 @@ ReactDOM.render(
     <Router>
         <Route path="/" component={App}>
             <IndexRoute component={BookList}/>
-            <Route path="bookList" component={BookList}/>
-            <Route path="cartInfo" component={CartInfo}/>
-            <Route path="checkOut" component={CheckOut}/>
+            <Route path="/bookList" component={BookList}/>
+            <Route path="/cartInfo" component={CartInfo}/>
+            <Route path="/checkOut" component={CheckOut}/>
             <Route path="/bookDetail" component={BookDetail}/>
         </Route>
-    </Router>,
+    </Router>
+    ,
     document.getElementById('content')
 );
