@@ -15,5 +15,11 @@
   "bugs": {
     "url": "https://github.com/jacyuan/Bookstore/issues"
   },
-  "homepage": "https://github.com/jacyuan/Bookstore#readme"
+  "homepage": "https://github.com/jacyuan/Bookstore#readme",
+  "dependencies": {
+    "crypto-js": "^3.1.9-1",
+    "jquery": "^3.1.1",
+    "remarkable": "^1.7.1",
+    "underscore": "^1.8.3"
+  }
 }
