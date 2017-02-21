@@ -2,9 +2,7 @@ let {
     Router,
     Route,
     IndexRoute,
-    IndexLink,
     Link,
-    browserHistory
 } = ReactRouter;
 
 //region main
@@ -98,7 +96,10 @@ App.childContextTypes = {
 let BookList = React.createClass({
     getInitialState: function () {
         return {
-            books: []
+            books: [],
+            currentPage: 0,
+            totalPageCount: 0,
+            isLoading: true
         };
     },
 
@@ -112,24 +113,20 @@ let BookList = React.createClass({
 
         return authorNames;
     },
+    getBooks: function (pageToShow = 0) {
+        this.setState({
+            isLoading: true
+        });
 
-    componentDidMount: function () {
         let self = this;
 
-        let publicKey = 'f63548d029560ca6297df5eab0ce1184';
-        let privateKey = '21fb208a38c9feaf9e8a043d0f6276eba10784e7';
-
-        let ts = new Date().getTime();
-
-        let hash = CryptoJS.MD5(ts + privateKey + publicKey).toString();
-
-        let url = 'http://gateway.marvel.com:80/v1/public/comics?limit=6&offset=0&apikey=' + publicKey;
-
-        url += '&ts=' + ts + '&hash=' + hash;
+        let url = 'http://localhost:9000/books?currentPage=' + pageToShow;
 
         //get all book info
         $.get(url, function (res) {
-            let booksInfo = _.map(res.data.results, function (book) {
+            let obj = JSON.parse(res);
+
+            let booksInfo = _.map(obj.results, function (book) {
                 let authors = '';
 
                 if (book && book.creators && book.creators.items && book.creators.items.length > 0) {
@@ -150,29 +147,113 @@ let BookList = React.createClass({
                 };
             });
 
+            let totalBookCount = obj.total;
+
             self.setState({
-                books: booksInfo
+                books: booksInfo,
+                totalPageCount: Math.ceil(totalBookCount / 6),
+                isLoading: false
             });
         });
     },
+    componentDidMount: function () {
+        this.getBooks();
+    },
+    previousPage: function () {
+        if (this.state.currentPage > 1) {
+            let newCurrentPage = this.state.currentPage - 1;
+            this.setState({
+                currentPage: newCurrentPage,
+                isLoading: true
+            });
 
-    render () {
-        const nodes = this.state.books.map(function (book, key) {
-            return (
-                <BookInList key={key}
-                            id={book.id}
-                            title={book.title}
-                            authors={book.authors}
-                            pageCount={book.pageCount}
-                            price={book.price}
-                            thumbImg={book.thumbImg}>
-                </BookInList>
-            );
+            this.getBooks(newCurrentPage);
+        }
+    },
+    nextPage: function () {
+        if (this.state.currentPage < this.state.totalPageCount) {
+            let newCurrentPage = this.state.currentPage + 1;
+            this.setState({
+                currentPage: newCurrentPage,
+                isLoading: true
+            });
+
+            this.getBooks(newCurrentPage);
+        }
+    },
+    firstPage: function () {
+        let newCurrentPage = 0;
+        this.setState({
+            currentPage: newCurrentPage,
+            isLoading: true
         });
+
+        this.getBooks(newCurrentPage);
+    },
+    lastPage: function () {
+        let newCurrentPage = this.state.totalPageCount - 1;
+        this.setState({
+            currentPage: newCurrentPage,
+            isLoading: true
+        });
+
+        this.getBooks(newCurrentPage);
+    },
+    render () {
+        let nodes;
+        if (this.state.isLoading) {
+            nodes = (<div className='center-block uil-reload-css'>
+                <div></div>
+            </div>);
+        } else {
+            nodes = this.state.books.map(function (book, key) {
+                return (
+                    <BookInList key={key}
+                                id={book.id}
+                                title={book.title}
+                                authors={book.authors}
+                                pageCount={book.pageCount}
+                                price={book.price}
+                                thumbImg={book.thumbImg}>
+                    </BookInList>
+                );
+            });
+        }
 
         return (
             <div className="row">
                 {nodes}
+
+                { this.state.isLoading
+                    ? null
+                    : (
+                        <div className="text-center">
+                            <button className="btn btn-link"
+                                    onClick={() => this.firstPage()}
+                                    disabled={this.state.currentPage === 0}>
+                                <span className="glyphicon glyphicon-fast-backward"></span>
+                            </button>
+                            <button className="btn btn-link"
+                                    onClick={() => this.previousPage()}
+                                    disabled={this.state.currentPage === 0}>
+                                <span className="glyphicon glyphicon-backward"></span>
+                            </button>
+
+                            Page : {this.state.currentPage + 1} / {this.state.totalPageCount}
+
+                            <button className="btn btn-link"
+                                    onClick={() => this.nextPage()}
+                                    disabled={this.state.currentPage + 1 === this.state.totalPageCount}>
+                                <span className="glyphicon glyphicon-forward"></span>
+                            </button>
+                            <button className="btn btn-link"
+                                    onClick={() => this.lastPage()}
+                                    disabled={this.state.currentPage + 1 === this.state.totalPageCount}>
+                                <span className="glyphicon glyphicon-fast-forward"></span>
+                            </button>
+                        </div>
+                    )
+                }
             </div>
         );
     }
@@ -233,7 +314,8 @@ BookInList.contextTypes = {
 let BookDetail = React.createClass({
     getInitialState: function () {
         return {
-            book: {}
+            book: {},
+            isLoading: false
         };
     },
     getAuthorNames: function (authors) {
@@ -247,57 +329,52 @@ let BookDetail = React.createClass({
         return authorNames;
     },
     componentDidMount: function () {
+        this.setState({isLoading: true});
+
         let bookId = this.props.location.state.id;
         let self = this;
 
-        let publicKey = 'f63548d029560ca6297df5eab0ce1184';
-        let privateKey = '21fb208a38c9feaf9e8a043d0f6276eba10784e7';
-
-        let ts = new Date().getTime();
-
-        let hash = CryptoJS.MD5(ts + privateKey + publicKey).toString();
-
-        let url = 'http://gateway.marvel.com:80/v1/public/comics/' + bookId + '?apikey=' + publicKey;
-
-        url += '&ts=' + ts + '&hash=' + hash;
+        let url = 'http://localhost:9000/books/' + bookId;
 
         //get book info
         //titre, image, description, nbr page, nom créateur, nom séries
         $.get(url, function (res) {
-            if (res && res.data && res.data.results.length > 0) {
-                let data = res.data.results[0];
+            let data = JSON.parse(res).results[0];
 
-                let authors = '';
+            let authors = '';
 
-                if (data.creators && data.creators.items && data.creators.items.length > 0) {
-                    authors = self.getAuthorNames(data.creators.items);
-                }
-
-                let imageUrl = data.images[0].path + '.' + data.images[0].extension;
-                let price = data.prices[0].price;
-
-                let book = {
-                    id: data.id,
-                    title: data.title,
-                    image: imageUrl,
-                    description: data.description,
-                    pageCount: data.pageCount,
-                    authors: authors,
-                    serie: data.series.name,
-                    price: price
-                };
-
-                self.setState({
-                    book: book
-                });
+            if (data.creators && data.creators.items && data.creators.items.length > 0) {
+                authors = self.getAuthorNames(data.creators.items);
             }
+
+            let imageUrl = data.images[0].path + '.' + data.images[0].extension;
+            let price = data.prices[0].price;
+
+            let book = {
+                id: data.id,
+                title: data.title,
+                image: imageUrl,
+                description: data.description,
+                pageCount: data.pageCount,
+                authors: authors,
+                serie: data.series.name,
+                price: price
+            };
+
+            self.setState({
+                book: book,
+                isLoading: false
+            });
         });
     },
     render () {
-        return (
-            <div className="row">
-                <img className="col-md-5" src={this.state.book.image}/>
-
+        let node;
+        if (this.state.isLoading) {
+            node = (<div className='center-block uil-reload-css'>
+                <div></div>
+            </div>);
+        } else {
+            node = (<div><img className="col-md-5" src={this.state.book.image}/>
                 <div className="col-md-offset-1 col-md-6">
                     <form className="form-horizontal">
                         <div className="form-group">
@@ -343,6 +420,12 @@ let BookDetail = React.createClass({
                         </div>
                     </form>
                 </div>
+            </div>);
+        }
+
+        return (
+            <div className="row">
+                {node}
             </div>
         );
     }
@@ -551,7 +634,7 @@ let CheckOut = React.createClass({
     render () {
         let books = this.context.cart.map(function (book, key) {
             return (
-                <div className="form-group">
+                <div className="form-group" key={key}>
                     <label className="col-sm-8 control-label">{book.title}</label>
                     <div className="col-sm-2">
                         <p className="form-control-static">{book.quantity}</p>
@@ -560,7 +643,7 @@ let CheckOut = React.createClass({
             );
         });
 
-        let errorIconStyle={
+        let errorIconStyle = {
             color: '#a94442'
         };
 
@@ -572,28 +655,32 @@ let CheckOut = React.createClass({
                         <div className="col-sm-7">
                             <input type="email" className="form-control" id="exampleInputEmail1" placeholder="Email"/>
                         </div>
-                        <span className={this.getErrorIconClassName('email')} title="error" style={errorIconStyle}></span>
+                        <span className={this.getErrorIconClassName('email')} title="error"
+                              style={errorIconStyle}></span>
                     </div>
                     <div className={this.getFormGroupClassName('street')}>
                         <label className="col-sm-4 control-label">Street *</label>
                         <div className="col-sm-7">
                             <input type="text" className="form-control" id="street" placeholder="Street"/>
                         </div>
-                        <span className={this.getErrorIconClassName('street')} title="error" style={errorIconStyle}></span>
+                        <span className={this.getErrorIconClassName('street')} title="error"
+                              style={errorIconStyle}></span>
                     </div>
                     <div className={this.getFormGroupClassName('city')}>
                         <label className="col-sm-4 control-label">City *</label>
                         <div className="col-sm-7">
                             <input type="text" className="form-control" id="city" placeholder="City"/>
                         </div>
-                        <span className={this.getErrorIconClassName('city')} title="error" style={errorIconStyle}></span>
+                        <span className={this.getErrorIconClassName('city')} title="error"
+                              style={errorIconStyle}></span>
                     </div>
                     <div className={this.getFormGroupClassName('dueDate')}>
                         <label className="col-sm-4 control-label">Due date of delivery *</label>
                         <div className="col-sm-7">
                             <input type="date" className="form-control" id="dueDate" placeholder="dd/mm/yyyy"/>
                         </div>
-                        <span className={this.getErrorIconClassName('dueDate')} title="error" style={errorIconStyle}></span>
+                        <span className={this.getErrorIconClassName('dueDate')} title="error"
+                              style={errorIconStyle}></span>
                     </div>
                     <br/>
                     {books}
