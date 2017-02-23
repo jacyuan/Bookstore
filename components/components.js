@@ -122,38 +122,42 @@ let BookList = React.createClass({
         let url = 'http://localhost:9000/books?currentPage=' + pageToShow;
 
         //get all book info
-        $.get(url, function (res) {
-            let obj = JSON.parse(res);
+        axios.get(url)
+            .then(function (res) {
+                let obj = res.data;
 
-            let booksInfo = _.map(obj.results, function (book) {
-                let authors = '';
+                let booksInfo = _.map(obj.results, function (book) {
+                    let authors = '';
 
-                if (book && book.creators && book.creators.items && book.creators.items.length > 0) {
-                    authors = self.getAuthorNames(book.creators.items);
-                }
+                    if (book && book.creators && book.creators.items && book.creators.items.length > 0) {
+                        authors = self.getAuthorNames(book.creators.items);
+                    }
 
-                let thumbImg = book.thumbnail.path + '.' + book.thumbnail.extension;
+                    let thumbImg = book.thumbnail.path + '.' + book.thumbnail.extension;
 
-                let price = book.prices[0].price;
+                    let price = book.prices[0].price;
 
-                return {
-                    id: book.id,
-                    title: book.title,
-                    authors: authors,
-                    thumbImg: thumbImg,
-                    pageCount: book.pageCount,
-                    price: price
-                };
+                    return {
+                        id: book.id,
+                        title: book.title,
+                        authors: authors,
+                        thumbImg: thumbImg,
+                        pageCount: book.pageCount,
+                        price: price
+                    };
+                });
+
+                let totalBookCount = obj.total;
+
+                self.setState({
+                    books: booksInfo,
+                    totalPageCount: Math.ceil(totalBookCount / 6),
+                    isLoading: false
+                });
+            })
+            .catch(function (error) {
+                console.log(error);
             });
-
-            let totalBookCount = obj.total;
-
-            self.setState({
-                books: booksInfo,
-                totalPageCount: Math.ceil(totalBookCount / 6),
-                isLoading: false
-            });
-        });
     },
     componentDidMount: function () {
         this.getBooks();
@@ -337,8 +341,8 @@ let BookDetail = React.createClass({
 
         //get book info
         //titre, image, description, nbr page, nom créateur, nom séries
-        $.get(url, function (res) {
-            let data = JSON.parse(res).results[0];
+        axios.get(url).then(function (res) {
+            let data = res.data.results[0];
 
             let authors = '';
 
@@ -371,7 +375,10 @@ let BookDetail = React.createClass({
                 book: book,
                 isLoading: false
             });
-        });
+        })
+            .catch(function (error) {
+                console.log(error);
+            });
     },
     render () {
         let node;
@@ -623,6 +630,7 @@ let CheckOut = React.createClass({
         };
     },
     checkOut: function () {
+        //todo post to server
     },
     getFormGroupClassName(eleName){
         if (this.state.errorElements && this.state.errorElements[eleName]) {
