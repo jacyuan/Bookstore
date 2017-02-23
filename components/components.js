@@ -5,6 +5,7 @@ let {
     Link,
 } = ReactRouter;
 
+
 //region main
 let App = React.createClass({
     getInitialState: function () {
@@ -626,11 +627,42 @@ let CheckOut = React.createClass({
                 street: false,
                 city: false,
                 dueDate: false
+            },
+            personalInfo: {
+                email: '',
+                street: '',
+                city: '',
+                dueDate: ''
             }
         };
     },
+    handleInputChange: function (event) {
+        const target = event.target;
+        const name = target.name;
+        const value = target.value;
+
+        let tmpPersoInfo = this.state.personalInfo;
+        tmpPersoInfo[name] = value;
+
+        this.setState({
+            personalInfo: tmpPersoInfo
+        });
+    },
     checkOut: function () {
-        //todo post to server
+        let url = 'http://localhost:9000/carts';
+
+        let data = {
+            cart: this.context.cart,
+            personalInfo: this.state.personalInfo
+        };
+
+        axios.post(url, data)
+            .then(function (response) {
+                console.log(response);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
     },
     getFormGroupClassName(eleName){
         if (this.state.errorElements && this.state.errorElements[eleName]) {
@@ -668,7 +700,8 @@ let CheckOut = React.createClass({
                     <div className={this.getFormGroupClassName('email')}>
                         <label className="col-sm-4 control-label">Email address *</label>
                         <div className="col-sm-7">
-                            <input type="email" className="form-control" id="exampleInputEmail1" placeholder="Email"/>
+                            <input type="email" className="form-control" id="email" name="email" placeholder="Email"
+                                   onChange={this.handleInputChange}/>
                         </div>
                         <span className={this.getErrorIconClassName('email')} title="error"
                               style={errorIconStyle}></span>
@@ -676,7 +709,8 @@ let CheckOut = React.createClass({
                     <div className={this.getFormGroupClassName('street')}>
                         <label className="col-sm-4 control-label">Street *</label>
                         <div className="col-sm-7">
-                            <input type="text" className="form-control" id="street" placeholder="Street"/>
+                            <input type="text" className="form-control" id="street" name="street" placeholder="Street"
+                                   onChange={this.handleInputChange}/>
                         </div>
                         <span className={this.getErrorIconClassName('street')} title="error"
                               style={errorIconStyle}></span>
@@ -684,7 +718,8 @@ let CheckOut = React.createClass({
                     <div className={this.getFormGroupClassName('city')}>
                         <label className="col-sm-4 control-label">City *</label>
                         <div className="col-sm-7">
-                            <input type="text" className="form-control" id="city" placeholder="City"/>
+                            <input type="text" className="form-control" id="city" name="city" placeholder="City"
+                                   onChange={this.handleInputChange}/>
                         </div>
                         <span className={this.getErrorIconClassName('city')} title="error"
                               style={errorIconStyle}></span>
@@ -692,7 +727,9 @@ let CheckOut = React.createClass({
                     <div className={this.getFormGroupClassName('dueDate')}>
                         <label className="col-sm-4 control-label">Due date of delivery *</label>
                         <div className="col-sm-7">
-                            <input type="date" className="form-control" id="dueDate" placeholder="dd/mm/yyyy"/>
+                            <input type="date" className="form-control" id="dueDate" name="dueDate"
+                                   placeholder="dd/mm/yyyy"
+                                   onChange={this.handleInputChange}/>
                         </div>
                         <span className={this.getErrorIconClassName('dueDate')} title="error"
                               style={errorIconStyle}></span>
