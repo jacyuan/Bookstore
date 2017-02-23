@@ -1,0 +1,61 @@
+New log file opened at Thu Feb 23 23:48:36 CET 2017 by 5344@YuandeMacBook-Pro.local
+Taking next connection to: 54579
+New client attempting to connect on port: 54581-54579
+  Address = /192.168.1.40:54579
+This client on port 54581 has uuid 0e99f3cb-01c8-4729-9fb3-52308dac7c43 configName activator humanReadableName Activator protocolVersion 3 featureTags Vector()
+Connected Clients: activator-0e99f3cb-01c8-4729-9fb3-52308dac7c43
+Taking next connection to: 54579
+New client attempting to connect on port: 54593-54579
+  Address = /192.168.1.40:54579
+Handshake exception on socket: 54593
+sbt.impl.ipc.HandshakeException: Unable to perform handshake
+	at sbt.impl.ipc.Peer.handshake(IPC.scala:46)
+	at sbt.impl.ipc.MultiClientServer.<init>(IPC.scala:150)
+	at sbt.server.SbtServerSocketHandler$$anon$1.run(SbtServerSocketHandler.scala:43)
+Caused by: java.io.EOFException
+	at java.io.DataInputStream.readInt(DataInputStream.java:392)
+	at sbt.impl.ipc.Peer.receive(IPC.scala:95)
+	at sbt.impl.ipc.Peer.handshake(IPC.scala:49)
+	... 2 more
+Taking next connection to: 54579
+New client attempting to connect on port: 54594-54579
+  Address = /192.168.1.40:54579
+This client on port 54594 has uuid 9c86aa33-e83a-4fc2-a384-d4fbbca4e2a4 configName activator humanReadableName Activator protocolVersion 3 featureTags Vector()
+Connected Clients: activator-9c86aa33-e83a-4fc2-a384-d4fbbca4e2a4
+Taking next connection to: 54579
+New client attempting to connect on port: 54595-54579
+  Address = /192.168.1.40:54579
+Handshake exception on socket: 54595
+sbt.impl.ipc.HandshakeException: Unable to perform handshake
+	at sbt.impl.ipc.Peer.handshake(IPC.scala:46)
+	at sbt.impl.ipc.MultiClientServer.<init>(IPC.scala:150)
+	at sbt.server.SbtServerSocketHandler$$anon$1.run(SbtServerSocketHandler.scala:43)
+Caused by: java.io.EOFException
+	at java.io.DataInputStream.readInt(DataInputStream.java:392)
+	at sbt.impl.ipc.Peer.receive(IPC.scala:95)
+	at sbt.impl.ipc.Peer.handshake(IPC.scala:49)
+	... 2 more
+Taking next connection to: 54579
+New client attempting to connect on port: 54596-54579
+  Address = /192.168.1.40:54579
+This client on port 54596 has uuid 9ec8be2a-00bc-4162-8d7f-64be65c193cb configName activator humanReadableName Activator protocolVersion 3 featureTags Vector()
+Connected Clients: activator-9c86aa33-e83a-4fc2-a384-d4fbbca4e2a4, activator-9ec8be2a-00bc-4162-8d7f-64be65c193cb
+Taking next connection to: 54579
+New client attempting to connect on port: 54597-54579
+  Address = /192.168.1.40:54579
+Handshake exception on socket: 54597
+sbt.impl.ipc.HandshakeException: Unable to perform handshake
+	at sbt.impl.ipc.Peer.handshake(IPC.scala:46)
+	at sbt.impl.ipc.MultiClientServer.<init>(IPC.scala:150)
+	at sbt.server.SbtServerSocketHandler$$anon$1.run(SbtServerSocketHandler.scala:43)
+Caused by: java.io.EOFException
+	at java.io.DataInputStream.readInt(DataInputStream.java:392)
+	at sbt.impl.ipc.Peer.receive(IPC.scala:95)
+	at sbt.impl.ipc.Peer.handshake(IPC.scala:49)
+	... 2 more
+Taking next connection to: 54579
+New client attempting to connect on port: 54607-54579
+  Address = /192.168.1.40:54579
+This client on port 54607 has uuid 8d571046-1916-43e9-8db2-2f4e7e6d900b configName play-fork-run humanReadableName Play Fork Run protocolVersion 1 featureTags Vector()
+Connected Clients: activator-9ec8be2a-00bc-4162-8d7f-64be65c193cb, play-fork-run-8d571046-1916-43e9-8db2-2f4e7e6d900b
+Taking next connection to: 54579
