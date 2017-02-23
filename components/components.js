@@ -102,7 +102,6 @@ let BookList = React.createClass({
             isLoading: true
         };
     },
-
     getAuthorNames: function (authors) {
         let authorNames = _.reduce(authors,
             function (res, author) {
@@ -347,7 +346,14 @@ let BookDetail = React.createClass({
                 authors = self.getAuthorNames(data.creators.items);
             }
 
-            let imageUrl = data.images[0].path + '.' + data.images[0].extension;
+            let imageUrl = '';
+
+            if (data.images.length > 0) {
+                imageUrl = data.images[0].path + '.' + data.images[0].extension;
+            } else {
+                imageUrl = data.thumbnail.path + '.' + data.thumbnail.extension;
+            }
+
             let price = data.prices[0].price;
 
             let book = {
@@ -374,7 +380,8 @@ let BookDetail = React.createClass({
                 <div></div>
             </div>);
         } else {
-            node = (<div><img className="col-md-5" src={this.state.book.image}/>
+            node = (<div>
+                <img className="col-md-5" src={this.state.book.image}/>
                 <div className="col-md-offset-1 col-md-6">
                     <form className="form-horizontal">
                         <div className="form-group">
