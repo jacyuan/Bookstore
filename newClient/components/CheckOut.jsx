@@ -1,8 +1,13 @@
 import React from 'react';
+import axios from 'axios'
+import CartCommunication from './CartCommunication.jsx'
 
 export default class CheckOut extends React.Component {
     constructor(props) {
         super(props);
+
+        this.cart = CartCommunication.CurrentCart;
+
         this.state = {
             errorElements: {
                 email: false,
@@ -17,6 +22,8 @@ export default class CheckOut extends React.Component {
                 dueDate: ''
             }
         };
+
+        this.handleInputChange = this.handleInputChange.bind(this);
     }
 
     handleInputChange(event) {
@@ -36,7 +43,7 @@ export default class CheckOut extends React.Component {
         let url = 'http://localhost:9000/carts';
 
         let data = {
-            cart: this.context.cart,
+            cart: this.cart,
             personalInfo: this.state.personalInfo
         };
 
@@ -70,7 +77,7 @@ export default class CheckOut extends React.Component {
             color: '#a94442'
         };
 
-        let books = this.context.cart.map(function (book, key) {
+        let books = this.cart.map(function (book, key) {
             return (
                 <div className="form-group" key={key}>
                     <label className="col-sm-8 control-label">{book.title}</label>
