@@ -19,23 +19,6 @@ export default class CheckOut extends React.Component {
         };
     }
 
-    // getInitialState() {
-    //     return {
-    //         errorElements: {
-    //             email: false,
-    //             street: false,
-    //             city: false,
-    //             dueDate: false
-    //         },
-    //         personalInfo: {
-    //             email: '',
-    //             street: '',
-    //             city: '',
-    //             dueDate: ''
-    //         }
-    //     };
-    // }
-
     handleInputChange(event) {
         const target = event.target;
         const name = target.name;
@@ -83,6 +66,10 @@ export default class CheckOut extends React.Component {
     }
 
     render() {
+        const errorIconStyle = {
+            color: '#a94442'
+        };
+
         let books = this.context.cart.map(function (book, key) {
             return (
                 <div className="form-group" key={key}>
@@ -94,10 +81,6 @@ export default class CheckOut extends React.Component {
             );
         });
 
-        let errorIconStyle = {
-            color: '#a94442'
-        };
-
         return (
             <div className="col-md-offset-2 col-md-8">
                 <form className="form-horizontal">
@@ -107,8 +90,9 @@ export default class CheckOut extends React.Component {
                             <input type="email" className="form-control" id="email" name="email" placeholder="Email"
                                    onChange={this.handleInputChange}/>
                         </div>
-                        <span className={this.getErrorIconClassName('email')} title="error"
-                              style={errorIconStyle}></span>
+                        <span className={this.getErrorIconClassName('email')}
+                              title="error"
+                              style={errorIconStyle}/>
                     </div>
                     <div className={this.getFormGroupClassName('street')}>
                         <label className="col-sm-4 control-label">Street *</label>
@@ -117,7 +101,7 @@ export default class CheckOut extends React.Component {
                                    onChange={this.handleInputChange}/>
                         </div>
                         <span className={this.getErrorIconClassName('street')} title="error"
-                              style={errorIconStyle}></span>
+                              style={errorIconStyle}/>
                     </div>
                     <div className={this.getFormGroupClassName('city')}>
                         <label className="col-sm-4 control-label">City *</label>
@@ -126,7 +110,7 @@ export default class CheckOut extends React.Component {
                                    onChange={this.handleInputChange}/>
                         </div>
                         <span className={this.getErrorIconClassName('city')} title="error"
-                              style={errorIconStyle}></span>
+                              style={errorIconStyle}/>
                     </div>
                     <div className={this.getFormGroupClassName('dueDate')}>
                         <label className="col-sm-4 control-label">Due date of delivery *</label>
@@ -136,7 +120,7 @@ export default class CheckOut extends React.Component {
                                    onChange={this.handleInputChange}/>
                         </div>
                         <span className={this.getErrorIconClassName('dueDate')} title="error"
-                              style={errorIconStyle}></span>
+                              style={errorIconStyle}/>
                     </div>
                     <br/>
                     {books}
@@ -152,7 +136,3 @@ export default class CheckOut extends React.Component {
         );
     }
 }
-
-CheckOut.contextTypes = {
-    cart: React.PropTypes.array
-};

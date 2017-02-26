@@ -76,7 +76,7 @@ export default class CartInfo extends React.Component {
         return '';
     }
 
-    getTotalPrice() {
+    static getTotalPrice() {
         let res = Number(_.reduce(CartCommunication.CurrentCart, function (sum, book) {
             return sum + book.price * book.quantity;
         }, 0));
@@ -109,12 +109,12 @@ export default class CartInfo extends React.Component {
                     <tr>
                         <th style={CartInfo.getWidth(45)}
                             onClick={() => this.sortBooks("title")}>
-                            Title <span className={this.getOrderIcon('title')}></span>
+                            Title <span className={this.getOrderIcon('title')}/>
                         </th>
                         <th style={CartInfo.getWidth(20)}>Unit Price</th>
                         <th style={CartInfo.getWidth(10)}
                             onClick={() => this.sortBooks("quantity")}>
-                            Quantity <span className={this.getOrderIcon('quantity')}></span>
+                            Quantity <span className={this.getOrderIcon('quantity')}/>
                         </th>
                         <th style={CartInfo.getWidth(15)}>Subtotal</th>
                         <th style={CartInfo.getWidth(10)}>Actions</th>
@@ -125,7 +125,7 @@ export default class CartInfo extends React.Component {
                     </tbody>
                     <tfoot>
                     <tr>
-                        <td colSpan="100" className="text-center">Total : {this.getTotalPrice()}</td>
+                        <td colSpan="100" className="text-center">Total : {CartInfo.getTotalPrice()}</td>
                     </tr>
                     </tfoot>
                 </table>
@@ -140,10 +140,3 @@ export default class CartInfo extends React.Component {
         );
     }
 }
-
-CartInfo.contextTypes = {
-    cart: React.PropTypes.array,
-    addToCart: React.PropTypes.func,
-    removeFromCart: React.PropTypes.func
-};
-

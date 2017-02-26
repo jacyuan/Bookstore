@@ -3,14 +3,6 @@ import {Link} from 'react-router';
 import AddRemoveButtons from './AddRemoveButtons.jsx'
 
 export default class BookInList extends React.Component {
-    addBook(item) {
-        this.context.addToCart(item);
-    }
-
-    removeBook(item) {
-        this.context.removeFromCart(item);
-    }
-
     render() {
         const imgStyle = {
             width: '100%'
@@ -47,9 +39,3 @@ export default class BookInList extends React.Component {
         );
     }
 }
-
-BookInList.contextTypes = {
-    cart: React.PropTypes.array,
-    addToCart: React.PropTypes.func,
-    removeFromCart: React.PropTypes.func
-};

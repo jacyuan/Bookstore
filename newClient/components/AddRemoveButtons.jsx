@@ -34,11 +34,11 @@ export default class AddRemoveButtons extends React.Component {
             <div className="btn-group" role="group">
                 <button type="button" className="btn btn-default" title="Add to cart"
                         onClick={() => AddRemoveButtons.add(this.props.book)}>
-                    <span className="glyphicon glyphicon-plus"></span>
+                    <span className="glyphicon glyphicon-plus"/>
                 </button>
                 <button type="button" className="btn btn-default" title="Remove from cart"
                         onClick={() => AddRemoveButtons.remove(this.props.book)}>
-                    <span className="glyphicon glyphicon-minus"></span>
+                    <span className="glyphicon glyphicon-minus"/>
                 </button>
             </div>
         );

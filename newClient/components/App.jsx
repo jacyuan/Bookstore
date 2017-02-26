@@ -17,10 +17,10 @@ export default class App extends React.Component {
             bookCount: 0
         };
 
-        CartCommunication.registerCartUpdateFunc(this, this.updateBookCount);
+        CartCommunication.registerCartUpdateFunc(this, App.updateBookCount);
     }
 
-    updateBookCount(test) {
+    static updateBookCount(test) {
         let quantityInfo = _.values(_.pluck(CartCommunication.CurrentCart, 'quantity'));
 
         let count = _.reduce(quantityInfo, function (sum, quantity) {

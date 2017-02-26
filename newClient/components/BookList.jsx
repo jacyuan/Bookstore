@@ -1,7 +1,6 @@
 import React from 'react';
 import axios from 'axios'
 import BookInList from './BookInList.jsx'
-import CartCommunication from './CartCommunication.jsx'
 
 export default class BookList extends React.Component {
     constructor(props) {
@@ -13,15 +12,6 @@ export default class BookList extends React.Component {
             isLoading: true
         };
     }
-
-    // getInitialState() {
-    //     return {
-    //         books: [],
-    //         currentPage: 0,
-    //         totalPageCount: 0,
-    //         isLoading: true
-    //     };
-    // }
 
     static getAuthorNames(authors) {
         let authorNames = _.reduce(authors,
@@ -162,12 +152,12 @@ export default class BookList extends React.Component {
                             <button className="btn btn-link"
                                     onClick={() => this.firstPage()}
                                     disabled={this.state.currentPage === 0}>
-                                <span className="glyphicon glyphicon-fast-backward"></span>
+                                <span className="glyphicon glyphicon-fast-backward"/>
                             </button>
                             <button className="btn btn-link"
                                     onClick={() => this.previousPage()}
                                     disabled={this.state.currentPage === 0}>
-                                <span className="glyphicon glyphicon-backward"></span>
+                                <span className="glyphicon glyphicon-backward"/>
                             </button>
 
                             Page : {this.state.currentPage + 1} / {this.state.totalPageCount}
@@ -175,12 +165,12 @@ export default class BookList extends React.Component {
                             <button className="btn btn-link"
                                     onClick={() => this.nextPage()}
                                     disabled={this.state.currentPage + 1 === this.state.totalPageCount}>
-                                <span className="glyphicon glyphicon-forward"></span>
+                                <span className="glyphicon glyphicon-forward"/>
                             </button>
                             <button className="btn btn-link"
                                     onClick={() => this.lastPage()}
                                     disabled={this.state.currentPage + 1 === this.state.totalPageCount}>
-                                <span className="glyphicon glyphicon-fast-forward"></span>
+                                <span className="glyphicon glyphicon-fast-forward"/>
                             </button>
                         </div>
                     )
