@@ -451,7 +451,7 @@ let BookDetail = React.createClass({
 let CartInfo = React.createClass({
     getInitialState: function () {
         return {
-            coloneToSort: '',
+            columnToSort: '',
             sortByAsc: true
         };
     },
@@ -470,7 +470,7 @@ let CartInfo = React.createClass({
         return false;
     },
     sortBooks: function (coloneName) {
-        if (coloneName === this.state.coloneToSort) {
+        if (coloneName === this.state.columnToSort) {
 
             if (this.state.sortByAsc) {
                 this.context.cart = _.sortBy(this.context.cart, coloneName).reverse();
@@ -483,7 +483,7 @@ let CartInfo = React.createClass({
             });
         } else {
             this.setState({
-                coloneToSort: coloneName,
+                columnToSort: coloneName,
                 sortByAsc: true
             });
 
@@ -499,7 +499,7 @@ let CartInfo = React.createClass({
         }
     },
     getTitleOrderIcon: function () {
-        if ('title' === this.state.coloneToSort) {
+        if ('title' === this.state.columnToSort) {
             return this.state.sortByAsc
                 ? 'glyphicon glyphicon-sort-by-alphabet'
                 : 'glyphicon glyphicon-sort-by-alphabet-alt';
@@ -508,7 +508,7 @@ let CartInfo = React.createClass({
         return '';
     },
     getQuantityOrderIcon: function () {
-        if ('quantity' === this.state.coloneToSort) {
+        if ('quantity' === this.state.columnToSort) {
             return this.state.sortByAsc
                 ? 'glyphicon glyphicon-sort-by-order'
                 : 'glyphicon glyphicon-sort-by-order-alt';

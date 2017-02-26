@@ -9,25 +9,30 @@ import BookDetail from './BookDetail.jsx'
 import CartCommunication from './CartCommunication.jsx'
 
 export default class App extends React.Component {
-
     constructor() {
         super();
 
         this.state = {
             bookCount: 0
         };
+    }
 
+    componentDidMount() {
         CartCommunication.registerCartUpdateFunc(this, App.updateBookCount);
     }
 
-    static updateBookCount(test) {
+    componentWillUnmount(){
+        CartCommunication.unregisterCartUpdateFunc(this);
+    }
+
+    static updateBookCount(currentObject) {
         let quantityInfo = _.values(_.pluck(CartCommunication.CurrentCart, 'quantity'));
 
         let count = _.reduce(quantityInfo, function (sum, quantity) {
             return sum + quantity;
         }, 0);
 
-        test.setState({
+        currentObject.setState({
             bookCount: count
         });
     }

@@ -8,9 +8,45 @@ export default class CartInfo extends React.Component {
         super();
 
         this.state = {
-            coloneToSort: '',
-            sortByAsc: true
+            columnToSort: '',
+            sortByAsc: true,
+            canCheckOut: false,
+            localCart: CartCommunication.CurrentCart
         };
+    }
+
+    componentDidMount() {
+        CartCommunication.registerCartUpdateFunc(this, CartInfo.updateLocalCart);
+        CartInfo.updateLocalCart(this);
+    }
+
+    componentWillUnmount() {
+        CartCommunication.unregisterCartUpdateFunc(this);
+    }
+
+    //several tasks to do here
+    //1. update the current local cart, with current sort
+    //2. update "check out" button state
+    static updateLocalCart(currentObj) {
+        let tmpCart = CartCommunication.CurrentCart;
+
+        //if a sort has already been applied in the list
+        if (currentObj.state && currentObj.state.columnToSort !== '') {
+            tmpCart = _.sortBy(tmpCart, currentObj.state.columnToSort);
+
+            if (currentObj.state.sortByAsc) {
+                tmpCart = tmpCart.reverse();
+            }
+        }
+
+        let tmpCanCheckOut = _.find(tmpCart, function (book) {
+            return book.quantity > 0;
+        });
+
+        currentObj.setState({
+            localCart: tmpCart,
+            canCheckOut: tmpCanCheckOut
+        });
     }
 
     static getWidth(widthInPercentage) {
@@ -19,36 +55,31 @@ export default class CartInfo extends React.Component {
         };
     }
 
-    static canCheckOut() {
-        return _.find(CartCommunication.CurrentCart, function (book) {
-            return book.quantity > 0;
-        });
-    }
-
-    sortBooks(coloneName) {
-        if (coloneName === this.state.coloneToSort) {
+    sortBooks(columnName) {
+        if (columnName === this.state.columnToSort) {
+            this.state.localCart = _.sortBy(this.state.localCart, columnName);
 
             if (this.state.sortByAsc) {
-                CartCommunication.CurrentCart = _.sortBy(CartCommunication.CurrentCart, coloneName).reverse();
-            } else {
-                CartCommunication.CurrentCart = _.sortBy(CartCommunication.CurrentCart, coloneName);
+                this.state.localCart = this.state.localCart.reverse();
             }
 
             this.setState({
-                sortByAsc: !this.state.sortByAsc
+                sortByAsc: !this.state.sortByAsc,
+                localCart: this.state.localCart
             });
         } else {
-            this.setState({
-                coloneToSort: coloneName,
-                sortByAsc: true
-            });
+            this.state.localCart = _.sortBy(this.state.localCart, columnName);
 
-            CartCommunication.CurrentCart = _.sortBy(CartCommunication.CurrentCart, coloneName);
+            this.setState({
+                columnToSort: columnName,
+                sortByAsc: true,
+                localCart: this.state.localCart
+            });
         }
     }
 
-    getOrderIcon(coloneNanme) {
-        switch (coloneNanme.toLowerCase()) {
+    getOrderIcon(columnNanme) {
+        switch (columnNanme.toLowerCase()) {
             case 'title':
                 return this.getTitleOrderIcon();
             case 'quantity':
@@ -57,7 +88,7 @@ export default class CartInfo extends React.Component {
     }
 
     getTitleOrderIcon() {
-        if ('title' === this.state.coloneToSort) {
+        if ('title' === this.state.columnToSort) {
             return this.state.sortByAsc
                 ? 'glyphicon glyphicon-sort-by-alphabet'
                 : 'glyphicon glyphicon-sort-by-alphabet-alt';
@@ -67,7 +98,7 @@ export default class CartInfo extends React.Component {
     }
 
     getQuantityOrderIcon() {
-        if ('quantity' === this.state.coloneToSort) {
+        if ('quantity' === this.state.columnToSort) {
             return this.state.sortByAsc
                 ? 'glyphicon glyphicon-sort-by-order'
                 : 'glyphicon glyphicon-sort-by-order-alt';
@@ -77,19 +108,25 @@ export default class CartInfo extends React.Component {
     }
 
     static getTotalPrice() {
-        let res = Number(_.reduce(CartCommunication.CurrentCart, function (sum, book) {
-            return sum + book.price * book.quantity;
-        }, 0));
+        let totalPrice = 0;
 
-        return res.toFixed(2);
+        if (this.state && this.state.localCart) {
+            let res = Number(_.reduce(this.state.localCart, function (sum, book) {
+                return sum + book.price * book.quantity;
+            }, 0));
+
+            totalPrice = res.toFixed(2);
+        }
+
+        return totalPrice;
     }
 
     render() {
         let nodes;
 
-        if (CartCommunication.CurrentCart && CartCommunication.CurrentCart.length > 0) {
+        if (this.state.localCart && this.state.localCart.length > 0) {
             //books have been added into the cart
-            nodes = CartCommunication.CurrentCart.map(function (book, key) {
+            nodes = this.state.localCart.map(function (book, key) {
                 return (
                     <BookInCart key={key} book={book}>
                     </BookInCart>
@@ -132,7 +169,7 @@ export default class CartInfo extends React.Component {
                 <div className="col-md-12">
                     <Link to="/checkOut">
                         <button className="btn btn-success pull-right"
-                                disabled={!CartInfo.canCheckOut()}>Check out
+                                disabled={!this.state.canCheckOut}>Check out
                         </button>
                     </Link>
                 </div>
