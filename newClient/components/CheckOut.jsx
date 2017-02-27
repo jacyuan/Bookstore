@@ -119,7 +119,7 @@ export default class CheckOut extends React.Component {
                         <label className="col-sm-4 control-label">City *</label>
                         <div className="col-sm-7">
                             <input type="text" className="form-control" id="city" name="city" placeholder="City"
-                                   maxLength="10"
+                                   maxLength="50"
                                    onChange={this.handleInputChange}/>
                         </div>
                         <span className={this.getErrorIconClassName('city')} title="error"
