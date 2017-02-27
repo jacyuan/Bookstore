@@ -1,6 +1,8 @@
 import React from 'react';
 import axios from 'axios'
 import CartCommunication from './CartCommunication.jsx'
+let DatePicker = require('react-datepicker');
+let moment = require('moment');
 
 export default class CheckOut extends React.Component {
     constructor(props) {
@@ -24,6 +26,7 @@ export default class CheckOut extends React.Component {
         };
 
         this.handleInputChange = this.handleInputChange.bind(this);
+        this.handleDateChange = this.handleDateChange.bind(this);
     }
 
     handleInputChange(event) {
@@ -33,6 +36,15 @@ export default class CheckOut extends React.Component {
 
         let tmpPersoInfo = this.state.personalInfo;
         tmpPersoInfo[name] = value;
+
+        this.setState({
+            personalInfo: tmpPersoInfo
+        });
+    }
+
+    handleDateChange(val) {
+        let tmpPersoInfo = this.state.personalInfo;
+        tmpPersoInfo.dueDate = val;
 
         this.setState({
             personalInfo: tmpPersoInfo
@@ -53,6 +65,7 @@ export default class CheckOut extends React.Component {
             })
             .catch(function (error) {
                 console.log(error);
+                console.log(error.data);
             });
     }
 
@@ -128,9 +141,12 @@ export default class CheckOut extends React.Component {
                     <div className={this.getFormGroupClassName('dueDate')}>
                         <label className="col-sm-4 control-label">Due date of delivery *</label>
                         <div className="col-sm-7">
-                            <input type="date" className="form-control" id="dueDate" name="dueDate"
-                                   placeholder="dd/mm/yyyy"
-                                   onChange={this.handleInputChange}/>
+                            <DatePicker id="dueDate" name="dueDate" className="form-control"
+                                        selected={this.state.personalInfo.dueDate}
+                                        onChange={this.handleDateChange}
+                                        minDate={moment().add(2, "days")}
+                                        maxDate={moment().add(16, "days")}
+                                        placeholderText="dd/MM/yyyy"/>
                         </div>
                         <span className={this.getErrorIconClassName('dueDate')} title="error"
                               style={errorIconStyle}/>
