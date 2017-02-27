@@ -59,6 +59,8 @@ export default class CheckOut extends React.Component {
             personalInfo: this.state.personalInfo
         };
 
+        data.personalInfo.dueDate = data.personalInfo.dueDate.local().format('DD/MM/YYYY');
+
         axios.post(url, data)
             .then(function (response) {
                 console.log(response);
@@ -142,6 +144,7 @@ export default class CheckOut extends React.Component {
                         <label className="col-sm-4 control-label">Due date of delivery *</label>
                         <div className="col-sm-7">
                             <DatePicker id="dueDate" name="dueDate" className="form-control"
+                                        dateFormat="DD/MM/YYYY"
                                         selected={this.state.personalInfo.dueDate}
                                         onChange={this.handleDateChange}
                                         minDate={moment().add(2, "days")}
