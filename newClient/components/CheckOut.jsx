@@ -77,6 +77,10 @@ export default class CheckOut extends React.Component {
             color: '#a94442'
         };
 
+        const upperCase = {
+            textTransform: 'uppercase'
+        };
+
         let books = this.cart.map(function (book, key) {
             return (
                 <div className="form-group" key={key}>
@@ -105,6 +109,7 @@ export default class CheckOut extends React.Component {
                         <label className="col-sm-4 control-label">Street *</label>
                         <div className="col-sm-7">
                             <input type="text" className="form-control" id="street" name="street" placeholder="Street"
+                                   style={upperCase}
                                    onChange={this.handleInputChange}/>
                         </div>
                         <span className={this.getErrorIconClassName('street')} title="error"
@@ -114,6 +119,7 @@ export default class CheckOut extends React.Component {
                         <label className="col-sm-4 control-label">City *</label>
                         <div className="col-sm-7">
                             <input type="text" className="form-control" id="city" name="city" placeholder="City"
+                                   maxLength="10"
                                    onChange={this.handleInputChange}/>
                         </div>
                         <span className={this.getErrorIconClassName('city')} title="error"
