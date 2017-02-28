@@ -604,7 +604,7 @@ let BookInCart = React.createClass({
                 </td>
                 <td>{this.props.book.price}</td>
                 <td>{this.props.book.quantity}</td>
-                <td>{this.getTotalPrice()}</td>
+                <td>{this.updateTotalPrice()}</td>
                 <td><AddRemoveButtons book={this.props.book}/></td>
             </tr>
         );

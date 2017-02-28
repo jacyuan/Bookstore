@@ -11,13 +11,14 @@ export default class CartInfo extends React.Component {
             columnToSort: '',
             sortByAsc: true,
             canCheckOut: false,
+            totalPrice: 0,
             localCart: CartCommunication.CurrentCart
         };
     }
 
     componentDidMount() {
-        CartCommunication.registerCartUpdateFunc(this, CartInfo.updateLocalCart);
-        CartInfo.updateLocalCart(this);
+        CartCommunication.registerCartUpdateFunc(this, CartInfo.updateCart);
+        CartInfo.updateCart(this);
     }
 
     componentWillUnmount() {
@@ -25,9 +26,10 @@ export default class CartInfo extends React.Component {
     }
 
     //several tasks to do here
-    //1. update the current local cart, with current sort
-    //2. update "check out" button state
-    static updateLocalCart(currentObj) {
+    //1. update the local cart (for current page), with the sort if any of them has been applied
+    //2. update "check out" button state (cart empty or not)
+    //3. update the total price
+    static updateCart(currentObj) {
         let tmpCart = CartCommunication.CurrentCart;
 
         //if a sort has already been applied in the list
@@ -46,10 +48,17 @@ export default class CartInfo extends React.Component {
 
         currentObj.setState({
             localCart: tmpCart,
-            canCheckOut: tmpCanCheckOut
+            canCheckOut: tmpCanCheckOut,
+            totalPrice: CartInfo.getTotalPrice(tmpCart)
         });
     }
 
+    static getTotalPrice(cart) {
+        return Number(_.reduce(cart, function (sum, book) {
+            return sum + book.price * book.quantity;
+        }, 0)).toFixed(2);
+    }
+    
     static getWidth(widthInPercentage) {
         return {
             width: widthInPercentage + '%'
@@ -108,20 +117,6 @@ export default class CartInfo extends React.Component {
         return '';
     }
 
-    static getTotalPrice() {
-        let totalPrice = 0;
-
-        if (this.state && this.state.localCart) {
-            let res = Number(_.reduce(this.state.localCart, function (sum, book) {
-                return sum + book.price * book.quantity;
-            }, 0));
-
-            totalPrice = res.toFixed(2);
-        }
-
-        return totalPrice;
-    }
-
     render() {
         let nodes;
 
@@ -163,7 +158,7 @@ export default class CartInfo extends React.Component {
                     </tbody>
                     <tfoot>
                     <tr>
-                        <td colSpan="100" className="text-center">Total : {CartInfo.getTotalPrice()}</td>
+                        <td colSpan="100" className="text-center">Total : {this.state.totalPrice}</td>
                     </tr>
                     </tfoot>
                 </table>
