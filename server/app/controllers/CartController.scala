@@ -1,14 +1,14 @@
 package controllers
 
-import java.text.SimpleDateFormat
+import java.text.{DateFormat, SimpleDateFormat}
 import java.util.Calendar
 import javax.inject.Inject
 
-import org.joda.time.{DateTime, Period, PeriodType}
-import play.api.mvc.{Action, Controller}
-import org.json4s.jackson.Serialization.read
+import play.api.mvc._
 import org.json4s._
 import org.json4s.jackson.Serialization
+import org.json4s.jackson.Serialization.{read, write}
+import org.joda.time.{DateTime, Period}
 import uk.gov.hmrc.emailaddress.EmailAddress
 
 /**
@@ -20,42 +20,49 @@ class CartController @Inject() extends Controller {
   def ValidationCartInfo(cart: CartDto): Map[String, Boolean] = {
     Map(
       "email" -> EmailAddress.isValid(cart.personalInfo.email),
-      "street" -> StreetValidation(cart.personalInfo.street),
-      "city" -> CityValidation(cart.personalInfo.street),
-      "dueDate" -> DueDateValidation(cart.personalInfo.dueDate)
+      "street" -> IsStreetValid(cart.personalInfo.street),
+      "city" -> IsCityValid(cart.personalInfo.city),
+      "dueDate" -> IsDueDateValid(cart.personalInfo.dueDate)
     )
   }
 
   def IsStringNullOrEmpty(s: String): Boolean = s == null || s.trim.isEmpty
 
-  def StreetValidation(street: String): Boolean = !IsStringNullOrEmpty(street)
+  def IsStreetValid(street: String): Boolean = !IsStringNullOrEmpty(street)
 
-  def CityValidation(city: String): Boolean = !IsStringNullOrEmpty(city) && city.length <= 50
+  def IsCityValid(city: String): Boolean = !IsStringNullOrEmpty(city) && city.length <= 50
 
-  def DueDateValidation(dueDate: String): Boolean = {
+  def IsDueDateValid(dueDate: String): Boolean = {
     try {
       val format = new SimpleDateFormat("dd/MM/yyyy")
-      val inputDate = new DateTime(format.parse(dueDate))
-      val today = new DateTime(format.parse(format.format(Calendar.getInstance().getTime())))
-      val p = new Period(today, inputDate).getDays
-      p >= 2 && p <= 15
+
+      val inputDate = format.parse(dueDate).getTime()
+      val today = format.parse(format.format(Calendar.getInstance().getTime())).getTime()
+
+      val diffTime = inputDate - today
+      val diffDays = diffTime / (1000 * 60 * 60 * 24)
+      diffDays >= 2 && diffDays <= 15
     } catch {
-      case e: Exception => false;
+      case e: Exception => {
+        false
+      };
     }
   }
 
-  def saveCart() = Action { request =>
-    val data = request.body.asJson.get
+  def saveCart(): Action[AnyContent] = {
+    Action { request =>
+      //get data
+      val data = request.body.asJson.get
+      val cart = read[CartDto](data.toString())
 
-    val cart = read[CartDto](data.toString())
+      //validations
+      val validationRes = ValidationCartInfo(cart)
 
-    val tt = ValidationCartInfo(cart)
-    println(tt)
-
-    if (tt.values.exists(_ == false)) {
-      PreconditionFailed(tt.toString())
-    }else{
-      Ok
+      if (validationRes.values.exists(_ == false)) {
+        NotAcceptable(write(validationRes))
+      } else {
+        Ok
+      }
     }
   }
 }
