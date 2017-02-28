@@ -58,7 +58,7 @@ export default class CartInfo extends React.Component {
             return sum + book.price * book.quantity;
         }, 0)).toFixed(2);
     }
-    
+
     static getWidth(widthInPercentage) {
         return {
             width: widthInPercentage + '%'

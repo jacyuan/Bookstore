@@ -1,8 +1,9 @@
 import React from 'react';
 import axios from 'axios'
 import CartCommunication from './CartCommunication.jsx'
-let DatePicker = require('react-datepicker');
-let moment = require('moment');
+import {browserHistory} from 'react-router'
+let DatePicker = require('react-datepicker')
+let moment = require('moment')
 
 export default class CheckOut extends React.Component {
     constructor(props) {
@@ -11,11 +12,11 @@ export default class CheckOut extends React.Component {
         this.cart = CartCommunication.CurrentCart;
 
         this.state = {
-            errorElements: {
-                email: false,
-                street: false,
-                city: false,
-                dueDate: false
+            elementValid: {
+                email: true,
+                street: true,
+                city: true,
+                dueDate: true
             },
             personalInfo: {
                 email: '',
@@ -59,32 +60,45 @@ export default class CheckOut extends React.Component {
             personalInfo: this.state.personalInfo
         };
 
-        data.personalInfo.dueDate = data.personalInfo.dueDate.local().format('DD/MM/YYYY');
+        data.personalInfo.dueDate = data.personalInfo.dueDate
+            ? new moment(data.personalInfo.dueDate).local().format('DD/MM/YYYY')
+            : data.personalInfo.dueDate;
+
+        let self = this;
 
         axios.post(url, data)
-            .then(function (response) {
-                console.log(response);
+            .then(function () {
+                browserHistory.push('/');
             })
             .catch(function (error) {
-                console.log(error);
-                console.log(error.data);
+                if (error.response) {
+                    let errors = error.response.data;
+                    self.setState({
+                        elementValid: {
+                            email: errors.email,
+                            street: errors.street,
+                            city: errors.city,
+                            dueDate: errors.dueDate
+                        }
+                    });
+                } else {
+                    console.log('Error', error.message);
+                }
             });
     }
 
     getFormGroupClassName(eleName) {
-        if (this.state.errorElements && this.state.errorElements[eleName]) {
-            return 'form-group has-error';
+        if (this.state.elementValid && this.state.elementValid[eleName]) {
+            return 'form-group';
         }
 
-        return 'form-group';
+        return 'form-group has-error';
     }
 
     getErrorIconClassName(eleName) {
-        if (this.state.errorElements && this.state.errorElements[eleName]) {
-            return 'col-sm-1 btn glyphicon glyphicon-exclamation-sign';
-        }
-
-        return '';
+        return this.state.elementValid && this.state.elementValid[eleName]
+            ? ''
+            : 'col-sm-1 btn glyphicon glyphicon-exclamation-sign';
     }
 
     render() {
@@ -95,6 +109,10 @@ export default class CheckOut extends React.Component {
         const upperCase = {
             textTransform: 'uppercase'
         };
+
+        const errorMsg = 'Something wrong...';
+        const errorIcon = <span className='col-sm-1 btn glyphicon glyphicon-exclamation-sign' title={errorMsg}
+                                style={errorIconStyle}/>;
 
         let books = this.cart.map(function (book, key) {
             return (
@@ -116,9 +134,7 @@ export default class CheckOut extends React.Component {
                             <input type="email" className="form-control" id="email" name="email" placeholder="Email"
                                    onChange={this.handleInputChange}/>
                         </div>
-                        <span className={this.getErrorIconClassName('email')}
-                              title="error"
-                              style={errorIconStyle}/>
+                        {this.state.elementValid.email ? null : errorIcon}
                     </div>
                     <div className={this.getFormGroupClassName('street')}>
                         <label className="col-sm-4 control-label">Street *</label>
@@ -127,8 +143,7 @@ export default class CheckOut extends React.Component {
                                    style={upperCase}
                                    onChange={this.handleInputChange}/>
                         </div>
-                        <span className={this.getErrorIconClassName('street')} title="error"
-                              style={errorIconStyle}/>
+                        {this.state.elementValid.street ? null : errorIcon}
                     </div>
                     <div className={this.getFormGroupClassName('city')}>
                         <label className="col-sm-4 control-label">City *</label>
@@ -137,22 +152,24 @@ export default class CheckOut extends React.Component {
                                    maxLength="50"
                                    onChange={this.handleInputChange}/>
                         </div>
-                        <span className={this.getErrorIconClassName('city')} title="error"
-                              style={errorIconStyle}/>
+                        {this.state.elementValid.city ? null : errorIcon}
                     </div>
                     <div className={this.getFormGroupClassName('dueDate')}>
                         <label className="col-sm-4 control-label">Due date of delivery *</label>
                         <div className="col-sm-7">
-                            <DatePicker id="dueDate" name="dueDate" className="form-control"
-                                        dateFormat="DD/MM/YYYY"
-                                        selected={this.state.personalInfo.dueDate}
-                                        onChange={this.handleDateChange}
-                                        minDate={moment().add(2, "days")}
-                                        maxDate={moment().add(16, "days")}
-                                        placeholderText="dd/MM/yyyy"/>
+                            {/*<DatePicker id="dueDate" name="dueDate" className="form-control"*/}
+                                        {/*dateFormat="DD/MM/YYYY"*/}
+                                        {/*selected={this.state.personalInfo.dueDate}*/}
+                                        {/*onChange={this.handleDateChange}*/}
+                                        {/*minDate={moment().add(2, "days")}*/}
+                                        {/*maxDate={moment().add(16, "days")}*/}
+                                        {/*placeholderText="dd/MM/yyyy"/>*/}
+
+                            <input type="text" className="form-control" id="dueDate" name="dueDate" placeholder="City"
+                                   maxLength="50"
+                                   onChange={this.handleInputChange}/>
                         </div>
-                        <span className={this.getErrorIconClassName('dueDate')} title="error"
-                              style={errorIconStyle}/>
+                        {this.state.elementValid.dueDate ? null : errorIcon}
                     </div>
                     <br/>
                     {books}

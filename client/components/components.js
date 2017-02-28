@@ -622,7 +622,7 @@ BookInCart.contextTypes = {
 let CheckOut = React.createClass({
     getInitialState: function () {
         return {
-            errorElements: {
+            elementValid: {
                 email: false,
                 street: false,
                 city: false,
@@ -665,14 +665,14 @@ let CheckOut = React.createClass({
             });
     },
     getFormGroupClassName(eleName){
-        if (this.state.errorElements && this.state.errorElements[eleName]) {
+        if (this.state.elementValid && this.state.elementValid[eleName]) {
             return 'form-group has-error';
         }
 
         return 'form-group';
     },
     getErrorIconClassName(eleName){
-        if (this.state.errorElements && this.state.errorElements[eleName]) {
+        if (this.state.elementValid && this.state.elementValid[eleName]) {
             return 'col-sm-1 btn glyphicon glyphicon-exclamation-sign';
         }
 
