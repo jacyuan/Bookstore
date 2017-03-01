@@ -1,5 +1,6 @@
 import React from 'react';
 
+//a communication service for showing alert messages
 export default class AlertCommunicationService {
     constructor() {
         this.ShowAlertFunc = undefined;

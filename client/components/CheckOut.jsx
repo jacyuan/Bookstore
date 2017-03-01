@@ -33,18 +33,17 @@ export default class CheckOut extends React.Component {
     handleInputChange(event) {
         const target = event.target;
         const name = target.name;
-        const value = target.value;
+        let value = target.value;
 
         let tmpPersoInfo = this.state.personalInfo;
-        tmpPersoInfo[name] = value;
 
         if (name === 'dueDate') {
-            if (value && value.length === 10) {
-                tmpPersoInfo.dueDate = new moment(value, 'DD/MM/YYYY').format('DD/MM/YYYY');
-            } else {
-                tmpPersoInfo.dueDate = undefined;
-            }
+            value = value && value.length === 10
+                ? new moment(value, 'DD/MM/YYYY').format('DD/MM/YYYY')
+                : undefined;
         }
+
+        tmpPersoInfo[name] = value;
 
         this.setState({
             personalInfo: tmpPersoInfo
@@ -69,6 +68,10 @@ export default class CheckOut extends React.Component {
 
         axios.post(url, data)
             .then(function () {
+                //empty the cart, raise event
+                CartCommunication.CurrentCart = [];
+                CartCommunication.raiseCartUpdatedEvent();
+
                 browserHistory.push('#/bookList');
                 AlertCommunicationService.raiseShowAlertEvent('Your command has been registered !', 'success');
             })
@@ -155,7 +158,8 @@ export default class CheckOut extends React.Component {
                     <div className={this.getFormGroupClassName('dueDate')}>
                         <label className="col-sm-4 control-label">Due date of delivery *</label>
 
-
+                        {/* React-datePicker component had been tested and added for this purpose in the earlier version,
+                         but I got some problems while willing to switch the error icon visibility based on error*/}
                         <div className="col-sm-7">
                             <input type="date" className="form-control" id="dueDate" name="dueDate"
                                    placeholder="DD/MM/YYYY"

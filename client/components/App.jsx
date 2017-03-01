@@ -43,7 +43,7 @@ export default class App extends React.Component {
     }
 
     static addAlert(currentObject, msg, type) {
-        switch (type){
+        switch (type) {
             case 'error':
                 currentObject.refs.container.error(msg, '', {timeOut: 3000});
                 break;
@@ -59,8 +59,7 @@ export default class App extends React.Component {
                 <ToastContainer
                     toastMessageFactory={ToastMessageFactory}
                     ref="container"
-                    className="toast-top-right"
-                />
+                    className="toast-top-right"/>
 
                 <h1 className="text-center">Book store</h1>
                 <ul className="pull-right list-inline">
@@ -98,7 +97,6 @@ ReactDOM.render(
             <Route path={"checkOut"} component={CheckOut}/>
             <Route path={"bookDetail"} component={BookDetail}/>
         </Route>
-    </Router>
-    ,
+    </Router>,
     app
 );

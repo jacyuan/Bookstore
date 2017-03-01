@@ -58,19 +58,11 @@ export default class CartInfo extends React.Component {
         }, 0)).toFixed(2);
     }
 
-    static getWidth(widthInPercentage) {
-        return {
-            width: widthInPercentage + '%'
-        };
-    }
-
     sortBooks(columnName) {
         if (columnName === this.state.columnToSort) {
-            this.state.localCart = _.sortBy(this.state.localCart, columnName);
-
-            if (this.state.sortByAsc) {
-                this.state.localCart = this.state.localCart.reverse();
-            }
+            this.state.localCart = this.state.sortByAsc
+                ? _.sortBy(this.state.localCart, columnName).reverse()
+                : _.sortBy(this.state.localCart, columnName);
 
             this.setState({
                 sortByAsc: !this.state.sortByAsc,
@@ -139,17 +131,17 @@ export default class CartInfo extends React.Component {
                 <table className="table table-bordered table-hover col-md-10">
                     <thead>
                     <tr>
-                        <th style={CartInfo.getWidth(45)}
+                        <th style={{width: '45%'}}
                             onClick={() => this.sortBooks("title")}>
                             Title <span className={this.getOrderIcon('title')}/>
                         </th>
-                        <th style={CartInfo.getWidth(20)}>Unit Price</th>
-                        <th style={CartInfo.getWidth(10)}
+                        <th style={{width: '20%'}}>Unit Price</th>
+                        <th style={{width: '10%'}}
                             onClick={() => this.sortBooks("quantity")}>
                             Quantity <span className={this.getOrderIcon('quantity')}/>
                         </th>
-                        <th style={CartInfo.getWidth(15)}>Subtotal</th>
-                        <th style={CartInfo.getWidth(10)}>Actions</th>
+                        <th style={{width: '15%'}}>Subtotal</th>
+                        <th style={{width: '10%'}}>Actions</th>
                     </tr>
                     </thead>
                     <tbody>

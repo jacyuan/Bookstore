@@ -1,6 +1,7 @@
 import React from 'react'
 import CartCommunication from './CartCommunication.jsx'
 
+//add/remove buttons reusable for several pages
 export default class AddRemoveButtons extends React.Component {
     static add(book) {
         let currentBook = _.find(CartCommunication.CurrentCart, {id: book.id});

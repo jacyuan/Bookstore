@@ -1,6 +1,7 @@
 import React from 'react';
 import axios from 'axios'
 import BookInList from './BookInList.jsx'
+import {getAuthorNames} from './Helper.jsx'
 
 export default class BookList extends React.Component {
     constructor(props) {
@@ -13,25 +14,18 @@ export default class BookList extends React.Component {
         };
     }
 
-    static getAuthorNames(authors) {
-        let authorNames = _.reduce(authors,
-            function (res, author) {
-                return res + author.name + ', ';
-            }, '');
-
-        authorNames = authorNames.substr(0, authorNames.lastIndexOf(', '));
-
-        return authorNames;
-    }
-
-    getBooks(pageToShow = 0) {
+    startLoading() {
         this.setState({
             isLoading: true
         });
+    }
+
+    getBooks(pageToShow = 0) {
+        this.startLoading();
 
         let self = this;
 
-        let url = 'http://localhost:9000/books?currentPage=' + pageToShow;
+        let url = `http://localhost:9000/books?currentPage=${pageToShow}`;
 
         //get all book info
         axios.get(url)
@@ -40,30 +34,23 @@ export default class BookList extends React.Component {
 
                 let booksInfo = _.map(obj.results, function (book) {
                     let authors = '';
-
                     if (book && book.creators && book.creators.items && book.creators.items.length > 0) {
-                        authors = BookList.getAuthorNames(book.creators.items);
+                        authors = getAuthorNames(book.creators.items);
                     }
-
-                    let thumbImg = book.thumbnail.path + '.' + book.thumbnail.extension;
-
-                    let price = book.prices[0].price;
 
                     return {
                         id: book.id,
                         title: book.title,
                         authors: authors,
-                        thumbImg: thumbImg,
+                        thumbImg: `${book.thumbnail.path}.${book.thumbnail.extension}`,
                         pageCount: book.pageCount,
-                        price: price
+                        price: book.prices[0].price
                     };
                 });
 
-                let totalBookCount = obj.total;
-
                 self.setState({
                     books: booksInfo,
-                    totalPageCount: Math.ceil(totalBookCount / 6),
+                    totalPageCount: Math.ceil(obj.total / 6),
                     isLoading: false
                 });
             })

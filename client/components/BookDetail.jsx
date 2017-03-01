@@ -1,6 +1,7 @@
 import React from 'react';
 import axios from 'axios'
 import AddRemoveButtons from './AddRemoveButtons.jsx'
+import {getAuthorNames} from './Helper.jsx'
 
 export default class BookDetail extends React.Component {
     constructor(props) {
@@ -11,45 +12,23 @@ export default class BookDetail extends React.Component {
         };
     }
 
-    static getAuthorNames(authors) {
-        let authorNames = _.reduce(authors,
-            function (res, author) {
-                return res + author.name + ', ';
-            }, '');
-
-        authorNames = authorNames.substr(0, authorNames.lastIndexOf(', '));
-
-        return authorNames;
-    }
-
     componentDidMount() {
         this.setState({isLoading: true});
-
-        let bookId = this.props.location.state.id;
+        let url = `http://localhost:9000/books/${this.props.location.state.id}`;
         let self = this;
-
-        let url = 'http://localhost:9000/books/' + bookId;
-
         //get book info
         //titre, image, description, nbr page, nom créateur, nom séries
         axios.get(url).then(function (res) {
             let data = res.data.results[0];
 
             let authors = '';
-
             if (data.creators && data.creators.items && data.creators.items.length > 0) {
-                authors = BookDetail.getAuthorNames(data.creators.items);
+                authors = getAuthorNames(data.creators.items);
             }
 
-            let imageUrl = '';
-
-            if (data.images.length > 0) {
-                imageUrl = data.images[0].path + '.' + data.images[0].extension;
-            } else {
-                imageUrl = data.thumbnail.path + '.' + data.thumbnail.extension;
-            }
-
-            let price = data.prices[0].price;
+            let imageUrl = data.images.length > 0
+                ? `${data.images[0].path}.${data.images[0].extension}`
+                : `${data.thumbnail.path}.${data.thumbnail.extension}`;
 
             let book = {
                 id: data.id,
@@ -59,7 +38,7 @@ export default class BookDetail extends React.Component {
                 pageCount: data.pageCount,
                 authors: authors,
                 serie: data.series.name,
-                price: price
+                price: data.prices[0].price
             };
 
             self.setState({
