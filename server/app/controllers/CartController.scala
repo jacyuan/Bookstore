@@ -1,21 +1,20 @@
 package controllers
 
 import java.text.SimpleDateFormat
-import java.util.Calendar
+import java.util.{Calendar, Date}
 import javax.inject.Inject
-import play.api.mvc._
 import org.json4s._
 import org.json4s.jackson.Serialization
+import play.api.mvc._
 import org.json4s.jackson.Serialization.{read, write}
 import uk.gov.hmrc.emailaddress.EmailAddress
 
-/**
-  * Created by yuan on 2017/2/23.
-  */
 class CartController @Inject() extends Controller {
   implicit val formats = Serialization.formats(NoTypeHints)
 
-  def ValidationCartInfo(cart: CartDto): Map[String, Boolean] = {
+  private val dateParseFormat = new SimpleDateFormat("dd/MM/yyyy")
+
+  private def ValidationCartInfo(cart: CartDto): Map[String, Boolean] = {
     Map(
       "email" -> EmailAddress.isValid(cart.personalInfo.email),
       "street" -> IsStreetValid(cart.personalInfo.street),
@@ -24,27 +23,30 @@ class CartController @Inject() extends Controller {
     )
   }
 
-  def IsStringNullOrEmpty(s: String): Boolean = s == null || s.trim.isEmpty
+  private def IsStringNullOrEmpty(s: String): Boolean = s == null || s.trim.isEmpty
 
-  def IsStreetValid(street: String): Boolean = !IsStringNullOrEmpty(street)
+  private def IsStreetValid(street: String): Boolean = !IsStringNullOrEmpty(street)
 
-  def IsCityValid(city: String): Boolean = !IsStringNullOrEmpty(city) && city.length <= 50
+  private def IsCityValid(city: String): Boolean = !IsStringNullOrEmpty(city) && city.length <= 50
 
-  def IsDueDateValid(dueDate: String): Boolean = {
+  private def IsDueDateValid(dueDate: String): Boolean = {
     try {
-      val format = new SimpleDateFormat("dd/MM/yyyy")
-
-      val inputDate = format.parse(dueDate).getTime
-      val today = format.parse(format.format(Calendar.getInstance().getTime)).getTime
-
-      val diffTime = inputDate - today
-      val diffDays = diffTime / (1000 * 60 * 60 * 24)
+      val inputDate = dateParseFormat.parse(dueDate)
+      val diffDays = getDiffDays(inputDate)
       diffDays >= 2 && diffDays <= 15
     } catch {
       case e: Exception => {
         false
       };
     }
+  }
+
+  private def getDiffDays(dueDate: Date): Long = {
+    val inputDate = dueDate.getTime
+    val today = dateParseFormat.parse(dateParseFormat.format(Calendar.getInstance().getTime)).getTime
+
+    val diffTime = inputDate - today
+    diffTime / (1000 * 60 * 60 * 24)
   }
 
   def saveCart(): Action[AnyContent] = {
