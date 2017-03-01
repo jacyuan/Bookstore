@@ -2,7 +2,6 @@ import React from 'react';
 import axios from 'axios'
 import CartCommunication from './CartCommunication.jsx'
 import {browserHistory} from 'react-router'
-let DatePicker = require('react-datepicker')
 let moment = require('moment')
 
 export default class CheckOut extends React.Component {
@@ -27,7 +26,6 @@ export default class CheckOut extends React.Component {
         };
 
         this.handleInputChange = this.handleInputChange.bind(this);
-        this.handleDateChange = this.handleDateChange.bind(this);
     }
 
     handleInputChange(event) {
@@ -38,14 +36,13 @@ export default class CheckOut extends React.Component {
         let tmpPersoInfo = this.state.personalInfo;
         tmpPersoInfo[name] = value;
 
-        this.setState({
-            personalInfo: tmpPersoInfo
-        });
-    }
-
-    handleDateChange(val) {
-        let tmpPersoInfo = this.state.personalInfo;
-        tmpPersoInfo.dueDate = val;
+        if (name === 'dueDate') {
+            if (value && value.length === 10) {
+                tmpPersoInfo.dueDate = new moment(value, 'DD/MM/YYYY').format('DD/MM/YYYY');
+            } else {
+                tmpPersoInfo.dueDate = undefined;
+            }
+        }
 
         this.setState({
             personalInfo: tmpPersoInfo
@@ -60,10 +57,6 @@ export default class CheckOut extends React.Component {
             personalInfo: this.state.personalInfo
         };
 
-        data.personalInfo.dueDate = data.personalInfo.dueDate
-            ? new moment(data.personalInfo.dueDate).local().format('DD/MM/YYYY')
-            : data.personalInfo.dueDate;
-
         let self = this;
 
         axios.post(url, data)
@@ -73,6 +66,7 @@ export default class CheckOut extends React.Component {
             .catch(function (error) {
                 if (error.response) {
                     let errors = error.response.data;
+
                     self.setState({
                         elementValid: {
                             email: errors.email,
@@ -156,17 +150,12 @@ export default class CheckOut extends React.Component {
                     </div>
                     <div className={this.getFormGroupClassName('dueDate')}>
                         <label className="col-sm-4 control-label">Due date of delivery *</label>
-                        <div className="col-sm-7">
-                            {/*<DatePicker id="dueDate" name="dueDate" className="form-control"*/}
-                                        {/*dateFormat="DD/MM/YYYY"*/}
-                                        {/*selected={this.state.personalInfo.dueDate}*/}
-                                        {/*onChange={this.handleDateChange}*/}
-                                        {/*minDate={moment().add(2, "days")}*/}
-                                        {/*maxDate={moment().add(16, "days")}*/}
-                                        {/*placeholderText="dd/MM/yyyy"/>*/}
 
-                            <input type="text" className="form-control" id="dueDate" name="dueDate" placeholder="City"
-                                   maxLength="50"
+
+                        <div className="col-sm-7">
+                            <input type="date" className="form-control" id="dueDate" name="dueDate"
+                                   placeholder="DD/MM/YYYY"
+                                   maxLength="10" minLength="10"
                                    onChange={this.handleInputChange}/>
                         </div>
                         {this.state.elementValid.dueDate ? null : errorIcon}
