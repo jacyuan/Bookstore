@@ -1,4 +1,4 @@
-name := """TestRest"""
+name := """Bookstore"""
 
 version := "1.0-SNAPSHOT"
 

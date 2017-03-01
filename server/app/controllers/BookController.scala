@@ -43,11 +43,13 @@ class BookController @Inject() extends Controller {
 
   //get book list
   def getBooks(currentPage: Int) = Action {
-    Ok(getResult(Http(getUrlForBookList(currentPage)).asString))
+    val res = Http(getUrlForBookList(currentPage)).asString
+    Ok(getResult(res))
   }
 
   //get book detail by id
   def getBook(bookId: Int) = Action {
-    Ok(getResult(Http(getUrlForBookDetail(bookId)).asString))
+    val res = Http(getUrlForBookDetail(bookId)).asString
+    Ok(getResult(res))
   }
 }
