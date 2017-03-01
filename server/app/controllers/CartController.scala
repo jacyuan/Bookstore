@@ -1,14 +1,12 @@
 package controllers
 
-import java.text.{DateFormat, SimpleDateFormat}
+import java.text.SimpleDateFormat
 import java.util.Calendar
 import javax.inject.Inject
-
 import play.api.mvc._
 import org.json4s._
 import org.json4s.jackson.Serialization
 import org.json4s.jackson.Serialization.{read, write}
-import org.joda.time.{DateTime, Period}
 import uk.gov.hmrc.emailaddress.EmailAddress
 
 /**
@@ -36,8 +34,8 @@ class CartController @Inject() extends Controller {
     try {
       val format = new SimpleDateFormat("dd/MM/yyyy")
 
-      val inputDate = format.parse(dueDate).getTime()
-      val today = format.parse(format.format(Calendar.getInstance().getTime())).getTime()
+      val inputDate = format.parse(dueDate).getTime
+      val today = format.parse(format.format(Calendar.getInstance().getTime)).getTime
 
       val diffTime = inputDate - today
       val diffDays = diffTime / (1000 * 60 * 60 * 24)

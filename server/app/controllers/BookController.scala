@@ -3,12 +3,9 @@ package controllers
 import java.security.MessageDigest
 import java.util.Calendar
 import javax.inject.Inject
-
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.Json
 import play.api.mvc.{Action, Controller}
-
-import scalaj.http.HttpResponse
-import scalaj.http._
+import scalaj.http.{HttpResponse, _}
 
 /**
   * Created by yuan on 2017/2/21.
@@ -29,39 +26,28 @@ class BookController @Inject() extends Controller {
     currentPage * itemsPerPage
   }
 
+  private def getUrlForBookList(currentPage: Int): String = {
+    val now = Calendar.getInstance().getTimeInMillis
+    s"http://gateway.marvel.com:80/v1/public/comics?limit=$itemsPerPage&offset=${getOffset(currentPage)}&apikey=$publicKey&ts=$now&hash=${md5Hash(now + privateKey + publicKey)}"
+  }
+
+  private def getUrlForBookDetail(bookId: Int): String = {
+    val now = Calendar.getInstance().getTimeInMillis
+    s"http://gateway.marvel.com:80/v1/public/comics/$bookId?apikey=$publicKey&ts=$now&hash=${md5Hash(now + privateKey + publicKey)}"
+  }
+
+  private def getResult(response: HttpResponse[String]): String = {
+    val jsonObject = Json.parse(response.body)
+    (jsonObject \ "data").get.toString
+  }
+
   //get book list
   def getBooks(currentPage: Int) = Action {
-    println("current page = " + currentPage)
-    val now = Calendar.getInstance().getTimeInMillis()
-
-    var url = "http://gateway.marvel.com:80/v1/public/comics?limit=" + itemsPerPage + "&offset=" + getOffset(currentPage) + "&apikey=" + publicKey
-
-    url += "&ts=" + now + "&hash=" + md5Hash(now + privateKey + publicKey)
-
-    val response: HttpResponse[String] = Http(url).asString
-
-    val jsonObject = Json.parse(response.body)
-
-    val result = (jsonObject \ "data").get
-
-    Ok(result.toString)
+    Ok(getResult(Http(getUrlForBookList(currentPage)).asString))
   }
 
   //get book detail by id
   def getBook(bookId: Int) = Action {
-    val now = Calendar.getInstance().getTimeInMillis()
-
-    var url = "http://gateway.marvel.com:80/v1/public/comics/" + bookId + "?apikey=" + publicKey
-
-    url += "&ts=" + now + "&hash=" + md5Hash(now + privateKey + publicKey)
-
-    val response: HttpResponse[String] = Http(url).asString
-
-    val jsonObject = Json.parse(response.body)
-
-    val result = (jsonObject \ "data").get
-
-    Ok(result.toString)
+    Ok(getResult(Http(getUrlForBookDetail(bookId)).asString))
   }
-
 }
