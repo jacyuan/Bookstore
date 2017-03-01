@@ -4,14 +4,6 @@ import AddRemoveButtons from './AddRemoveButtons.jsx'
 
 export default class BookInList extends React.Component {
     render() {
-        const imgStyle = {
-            width: '100%'
-        };
-        const bookStyle = {
-            margin: '0 0 5px',
-            height: '350px'
-        };
-
         let book = {
             id: this.props.id,
             title: this.props.title,
@@ -22,10 +14,10 @@ export default class BookInList extends React.Component {
         };
 
         return (
-            <div className="col-md-6" style={bookStyle}>
+            <div className="col-md-6" style={{margin: '0 0 5px', height: '350px'}}>
                 <div className="col-md-5">
                     <Link to={{pathname: '/bookDetail', state: {id: this.props.id}}}>
-                        <img src={this.props.thumbImg} style={imgStyle}/>
+                        <img src={this.props.thumbImg} style={{width: '100%'}}/>
                     </Link>
                 </div>
 

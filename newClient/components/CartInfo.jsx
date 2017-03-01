@@ -34,7 +34,6 @@ export default class CartInfo extends React.Component {
 
         //if a sort has already been applied in the list
         if (currentObj.state && currentObj.state.columnToSort !== '') {
-            console.log(currentObj.state);
             tmpCart = _.sortBy(tmpCart, currentObj.state.columnToSort);
 
             if (!currentObj.state.sortByAsc) {

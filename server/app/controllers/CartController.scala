@@ -35,7 +35,7 @@ class CartController @Inject() extends Controller {
   def IsDueDateValid(dueDate: String): Boolean = {
     try {
       val format = new SimpleDateFormat("dd/MM/yyyy")
-      
+
       val inputDate = format.parse(dueDate).getTime()
       val today = format.parse(format.format(Calendar.getInstance().getTime())).getTime()
 

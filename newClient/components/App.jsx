@@ -1,12 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {Router, Route, IndexRoute, Link, hashHistory} from 'react-router';
-
+import {Router, Route, IndexRoute, Link, browserHistory} from 'react-router';
 import BookList from './BookList.jsx'
 import CartInfo from './CartInfo.jsx'
 import CheckOut from './CheckOut.jsx'
 import BookDetail from './BookDetail.jsx'
 import CartCommunication from './CartCommunication.jsx'
+import AlertCommunicationService from './AlertCommunicationService.jsx'
+import {ToastContainer, ToastMessage} from 'react-toastr'
+
+const ToastMessageFactory = React.createFactory(ToastMessage.animation);
 
 export default class App extends React.Component {
     constructor() {
@@ -19,10 +22,12 @@ export default class App extends React.Component {
 
     componentDidMount() {
         CartCommunication.registerCartUpdateFunc(this, App.updateBookCount);
+        AlertCommunicationService.registerShowAlertFunc(this, App.addAlert);
     }
 
-    componentWillUnmount(){
+    componentWillUnmount() {
         CartCommunication.unregisterCartUpdateFunc(this);
+        AlertCommunicationService.unregisterShowAlertFunc();
     }
 
     static updateBookCount(currentObject) {
@@ -37,9 +42,26 @@ export default class App extends React.Component {
         });
     }
 
+    static addAlert(currentObject, msg, type) {
+        switch (type){
+            case 'error':
+                currentObject.refs.container.error(msg, '', {timeOut: 3000});
+                break;
+            case 'success':
+                currentObject.refs.container.success(msg, '', {timeOut: 3000});
+                break;
+        }
+    }
+
     render() {
         return (
             <div>
+                <ToastContainer
+                    toastMessageFactory={ToastMessageFactory}
+                    ref="container"
+                    className="toast-top-right"
+                />
+
                 <h1 className="text-center">Book store</h1>
                 <ul className="pull-right list-inline">
                     <li>
@@ -68,13 +90,13 @@ export default class App extends React.Component {
 const app = document.getElementById('content');
 
 ReactDOM.render(
-    <Router history={hashHistory}>
-        <Route path="/" component={App}>
+    <Router history={browserHistory}>
+        <Route path={"/"} component={App}>
             <IndexRoute component={BookList}/>
-            <Route path="/bookList" component={BookList}/>
-            <Route path="/cartInfo" component={CartInfo}/>
-            <Route path="/checkOut" component={CheckOut}/>
-            <Route path="/bookDetail" component={BookDetail}/>
+            <Route path={"bookList"} component={BookList}/>
+            <Route path={"cartInfo"} component={CartInfo}/>
+            <Route path={"checkOut"} component={CheckOut}/>
+            <Route path={"bookDetail"} component={BookDetail}/>
         </Route>
     </Router>
     ,

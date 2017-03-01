@@ -1,10 +1,6 @@
 import React from 'react';
 
-export default class CartCommunication extends React.Component {
-    constructor() {
-        super();
-    }
-
+export default class CartCommunication {
     static CurrentCart = [];
     static Funcs = new Map();
 

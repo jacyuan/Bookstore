@@ -1,8 +1,9 @@
 import React from 'react';
 import axios from 'axios'
 import CartCommunication from './CartCommunication.jsx'
-import {browserHistory} from 'react-router'
-let moment = require('moment')
+import AlertCommunicationService from './AlertCommunicationService.jsx'
+import {browserHistory} from 'react-router';
+import moment from 'moment';
 
 export default class CheckOut extends React.Component {
     constructor(props) {
@@ -11,6 +12,7 @@ export default class CheckOut extends React.Component {
         this.cart = CartCommunication.CurrentCart;
 
         this.state = {
+            isLoading: false,
             elementValid: {
                 email: true,
                 street: true,
@@ -49,7 +51,13 @@ export default class CheckOut extends React.Component {
         });
     }
 
+    startLoading() {
+        this.setState({isLoading: true});
+    }
+
     checkOut() {
+        this.startLoading();
+
         let url = 'http://localhost:9000/carts';
 
         let data = {
@@ -61,9 +69,12 @@ export default class CheckOut extends React.Component {
 
         axios.post(url, data)
             .then(function () {
-                browserHistory.push('/');
+                browserHistory.push('#/bookList');
+                AlertCommunicationService.raiseShowAlertEvent('Your command has been registered !', 'success');
             })
             .catch(function (error) {
+                AlertCommunicationService.raiseShowAlertEvent('Something wrong with your input information', 'error');
+
                 if (error.response) {
                     let errors = error.response.data;
 
@@ -73,7 +84,8 @@ export default class CheckOut extends React.Component {
                             street: errors.street,
                             city: errors.city,
                             dueDate: errors.dueDate
-                        }
+                        },
+                        isLoading: false
                     });
                 } else {
                     console.log('Error', error.message);
@@ -89,24 +101,10 @@ export default class CheckOut extends React.Component {
         return 'form-group has-error';
     }
 
-    getErrorIconClassName(eleName) {
-        return this.state.elementValid && this.state.elementValid[eleName]
-            ? ''
-            : 'col-sm-1 btn glyphicon glyphicon-exclamation-sign';
-    }
-
     render() {
-        const errorIconStyle = {
-            color: '#a94442'
-        };
-
-        const upperCase = {
-            textTransform: 'uppercase'
-        };
-
-        const errorMsg = 'Something wrong...';
-        const errorIcon = <span className='col-sm-1 btn glyphicon glyphicon-exclamation-sign' title={errorMsg}
-                                style={errorIconStyle}/>;
+        const errorIcon = <span className='col-sm-1 btn glyphicon glyphicon-exclamation-sign'
+                                title='Something wrong...'
+                                style={{color: '#a94442'}}/>;
 
         let books = this.cart.map(function (book, key) {
             return (
@@ -119,8 +117,14 @@ export default class CheckOut extends React.Component {
             );
         });
 
-        return (
-            <div className="col-md-offset-2 col-md-8">
+        let nodes;
+
+        if (this.state.isLoading) {
+            nodes = (<div className='center-block uil-reload-css'>
+                <div></div>
+            </div>);
+        } else {
+            nodes = <div className="col-md-offset-2 col-md-8">
                 <form className="form-horizontal">
                     <div className={this.getFormGroupClassName('email')}>
                         <label className="col-sm-4 control-label">Email address *</label>
@@ -134,7 +138,7 @@ export default class CheckOut extends React.Component {
                         <label className="col-sm-4 control-label">Street *</label>
                         <div className="col-sm-7">
                             <input type="text" className="form-control" id="street" name="street" placeholder="Street"
-                                   style={upperCase}
+                                   style={{textTransform: 'uppercase'}}
                                    onChange={this.handleInputChange}/>
                         </div>
                         {this.state.elementValid.street ? null : errorIcon}
@@ -170,7 +174,9 @@ export default class CheckOut extends React.Component {
                         onClick={() => this.checkOut()}>
                     Check out
                 </button>
-            </div>
-        );
+            </div>;
+        }
+
+        return nodes;
     }
 }
