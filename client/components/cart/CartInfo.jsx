@@ -1,7 +1,7 @@
 import React from 'react'
 import {Link} from 'react-router'
 import BookInCart from './BookInCart.jsx'
-import CartCommunication from './CartCommunication.jsx'
+import CartCommunicationService from '../services/Cart.communication.service.jsx'
 
 export default class CartInfo extends React.Component {
     constructor() {
@@ -12,17 +12,17 @@ export default class CartInfo extends React.Component {
             sortByAsc: true,
             canCheckOut: false,
             totalPrice: 0,
-            localCart: CartCommunication.CurrentCart
+            localCart: CartCommunicationService.CurrentCart
         };
     }
 
     componentDidMount() {
-        CartCommunication.registerCartUpdateFunc(this, CartInfo.updateCart);
+        CartCommunicationService.registerCartUpdateFunc(this, CartInfo.updateCart);
         CartInfo.updateCart(this);
     }
 
     componentWillUnmount() {
-        CartCommunication.unregisterCartUpdateFunc(this);
+        CartCommunicationService.unregisterCartUpdateFunc(this);
     }
 
     //several tasks to do here
@@ -30,7 +30,7 @@ export default class CartInfo extends React.Component {
     //2. update "check out" button state (cart empty or not)
     //3. update the total price
     static updateCart(currentObj) {
-        let tmpCart = CartCommunication.CurrentCart;
+        let tmpCart = CartCommunicationService.CurrentCart;
 
         //if a sort has already been applied in the list
         if (currentObj.state && currentObj.state.columnToSort !== '') {

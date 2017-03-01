@@ -1,7 +1,7 @@
 import React from 'react';
 
 //we can also use the contextType in React for passing variables
-export default class CartCommunication {
+export default class CartCommunicationService {
     //normally, we may use a set function for setting new cart value,
     //meanwhile, in the set function, we will raise raiseCartUpdatedEvent in the same time
     static CurrentCart = [];

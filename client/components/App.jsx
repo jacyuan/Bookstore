@@ -1,12 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {Router, Route, IndexRoute, Link, browserHistory} from 'react-router';
-import BookList from './BookList.jsx'
-import CartInfo from './CartInfo.jsx'
-import CheckOut from './CheckOut.jsx'
-import BookDetail from './BookDetail.jsx'
-import CartCommunication from './CartCommunication.jsx'
-import AlertCommunicationService from './AlertCommunicationService.jsx'
+import BookList from './bookList/BookList.jsx'
+import CartInfo from './cart/CartInfo.jsx'
+import CheckOut from './checkOut/CheckOut.jsx'
+import BookDetail from './bookInfo/BookDetail.jsx'
+import CartCommunicationService from './services/Cart.communication.service.jsx'
+import AlertCommunicationService from './services/Alert.communication.service.jsx'
 import {ToastContainer, ToastMessage} from 'react-toastr'
 
 const ToastMessageFactory = React.createFactory(ToastMessage.animation);
@@ -21,17 +21,17 @@ export default class App extends React.Component {
     }
 
     componentDidMount() {
-        CartCommunication.registerCartUpdateFunc(this, App.updateBookCount);
+        CartCommunicationService.registerCartUpdateFunc(this, App.updateBookCount);
         AlertCommunicationService.registerShowAlertFunc(this, App.addAlert);
     }
 
     componentWillUnmount() {
-        CartCommunication.unregisterCartUpdateFunc(this);
+        CartCommunicationService.unregisterCartUpdateFunc(this);
         AlertCommunicationService.unregisterShowAlertFunc();
     }
 
     static updateBookCount(currentObject) {
-        let quantityInfo = _.values(_.pluck(CartCommunication.CurrentCart, 'quantity'));
+        let quantityInfo = _.values(_.pluck(CartCommunicationService.CurrentCart, 'quantity'));
 
         let count = _.reduce(quantityInfo, function (sum, quantity) {
             return sum + quantity;
@@ -66,7 +66,7 @@ export default class App extends React.Component {
                     <li>
                         <Link to="/bookList">Book list</Link>
                     </li>
-                    <li> |</li>
+                    <li> | </li>
                     <li>
                         <Link to="/cartInfo">
                             <button className="btn btn-primary" type="button">

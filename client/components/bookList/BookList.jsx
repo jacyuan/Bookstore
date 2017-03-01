@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios'
 import BookInList from './BookInList.jsx'
-import {getAuthorNames} from './Helper.jsx'
+import {getAuthorNames} from '../Helper/Helper.jsx'
 
 export default class BookList extends React.Component {
     constructor(props) {

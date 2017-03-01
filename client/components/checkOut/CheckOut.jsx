@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios'
-import CartCommunication from './CartCommunication.jsx'
-import AlertCommunicationService from './AlertCommunicationService.jsx'
+import CartCommunicationService from '../services/Cart.communication.service.jsx'
+import AlertCommunicationService from '../services/Alert.communication.service.jsx'
 import {browserHistory} from 'react-router';
 import moment from 'moment';
 
@@ -9,7 +9,7 @@ export default class CheckOut extends React.Component {
     constructor(props) {
         super(props);
 
-        this.cart = CartCommunication.CurrentCart;
+        this.cart = CartCommunicationService.CurrentCart;
 
         this.state = {
             isLoading: false,
@@ -69,8 +69,8 @@ export default class CheckOut extends React.Component {
         axios.post(url, data)
             .then(function () {
                 //empty the cart, raise event
-                CartCommunication.CurrentCart = [];
-                CartCommunication.raiseCartUpdatedEvent();
+                CartCommunicationService.CurrentCart = [];
+                CartCommunicationService.raiseCartUpdatedEvent();
 
                 browserHistory.push('#/bookList');
                 AlertCommunicationService.raiseShowAlertEvent('Your command has been registered !', 'success');

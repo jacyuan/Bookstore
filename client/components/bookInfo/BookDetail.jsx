@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios'
-import AddRemoveButtons from './AddRemoveButtons.jsx'
-import {getAuthorNames} from './Helper.jsx'
+import AddRemoveButtons from '../AddRemoveButtons.jsx'
+import {getAuthorNames} from '../Helper/Helper.jsx'
 
 export default class BookDetail extends React.Component {
     constructor(props) {

@@ -1,6 +1,6 @@
 import React from 'react';
 import {Link} from 'react-router';
-import AddRemoveButtons from './AddRemoveButtons.jsx'
+import AddRemoveButtons from '../AddRemoveButtons.jsx'
 
 export default class BookInList extends React.Component {
     render() {
@@ -14,14 +14,14 @@ export default class BookInList extends React.Component {
         };
 
         return (
-            <div className="col-md-6" style={{margin: '0 0 5px', height: '350px'}}>
+            <div className="col-md-4" style={{margin: '0 0 5px', height: '230px'}}>
                 <div className="col-md-5">
                     <Link to={{pathname: '/bookDetail', state: {id: this.props.id}}}>
                         <img src={this.props.thumbImg} style={{width: '100%'}}/>
                     </Link>
                 </div>
 
-                <div className="col-md-7">
+                <div className="col-md-7" style={{fontSize:'smaller'}}>
                     <p>{this.props.title}</p>
                     <p>{this.props.authors}</p>
                     <p>{this.props.pageCount} pages</p>

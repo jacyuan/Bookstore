@@ -1,6 +1,6 @@
 import React from 'react'
 import {Link} from 'react-router'
-import AddRemoveButtons from './AddRemoveButtons.jsx'
+import AddRemoveButtons from '../AddRemoveButtons.jsx'
 
 export default class BookInCart extends React.Component {
     getTotalPrice() {
