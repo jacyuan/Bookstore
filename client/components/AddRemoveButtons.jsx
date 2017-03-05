@@ -4,30 +4,34 @@ import CartCommunicationService from './services/Cart.communication.service.jsx'
 //add/remove buttons reusable for several pages
 export default class AddRemoveButtons extends React.Component {
     static add(book) {
-        let currentBook = _.find(CartCommunicationService.CurrentCart, {id: book.id});
+        let tmpCart = CartCommunicationService.getCart();
+
+        let currentBook = _.find(tmpCart, {id: book.id});
 
         if (currentBook) {
             currentBook.quantity++;
         } else {
             let newBook = Object.assign({quantity: 1}, book);
-            CartCommunicationService.CurrentCart.push(newBook);
+            tmpCart.push(newBook);
         }
 
-        CartCommunicationService.raiseCartUpdatedEvent();
+        CartCommunicationService.setCart(tmpCart);
     }
 
     static remove(book) {
-        let currentBook = _.find(CartCommunicationService.CurrentCart, {id: book.id});
+        let tmpCart = CartCommunicationService.getCart();
+
+        let currentBook = _.find(tmpCart, {id: book.id});
 
         if (currentBook) {
             if (currentBook.quantity > 1) {
                 currentBook.quantity--;
             } else {
-                CartCommunicationService.CurrentCart = _.reject(CartCommunicationService.CurrentCart, {id: book.id});
+                tmpCart=_.reject(tmpCart, {id: book.id});
             }
-        }
 
-        CartCommunicationService.raiseCartUpdatedEvent();
+            CartCommunicationService.setCart(tmpCart);
+        }
     }
 
     render() {

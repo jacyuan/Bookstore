@@ -31,7 +31,7 @@ export default class App extends React.Component {
     }
 
     static updateBookCount(currentObject) {
-        let quantityInfo = _.values(_.pluck(CartCommunicationService.CurrentCart, 'quantity'));
+        let quantityInfo = _.values(_.pluck(CartCommunicationService.getCart(), 'quantity'));
 
         let count = _.reduce(quantityInfo, function (sum, quantity) {
             return sum + quantity;

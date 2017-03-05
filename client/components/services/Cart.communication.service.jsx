@@ -7,6 +7,15 @@ export default class CartCommunicationService {
     static CurrentCart = [];
     static Funcs = new Map();
 
+    static getCart() {
+        return this.CurrentCart;
+    }
+
+    static setCart(cart) {
+        this.CurrentCart = cart;
+        this.raiseCartUpdatedEvent();
+    }
+
     static registerCartUpdateFunc(obj, func) {
         this.Funcs.set(obj, func);
     }

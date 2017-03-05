@@ -12,7 +12,7 @@ export default class CartInfo extends React.Component {
             sortByAsc: true,
             canCheckOut: false,
             totalPrice: 0,
-            localCart: CartCommunicationService.CurrentCart
+            localCart: CartCommunicationService.getCart()
         };
     }
 
@@ -30,7 +30,7 @@ export default class CartInfo extends React.Component {
     //2. update "check out" button state (cart empty or not)
     //3. update the total price
     static updateCart(currentObj) {
-        let tmpCart = CartCommunicationService.CurrentCart;
+        let tmpCart = CartCommunicationService.getCart();
 
         //if a sort has already been applied in the list
         if (currentObj.state && currentObj.state.columnToSort !== '') {

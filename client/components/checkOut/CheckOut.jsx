@@ -9,7 +9,7 @@ export default class CheckOut extends React.Component {
     constructor(props) {
         super(props);
 
-        this.cart = CartCommunicationService.CurrentCart;
+        this.cart = CartCommunicationService.getCart();
 
         this.state = {
             isLoading: false,
@@ -69,8 +69,7 @@ export default class CheckOut extends React.Component {
         axios.post(url, data)
             .then(function () {
                 //empty the cart, raise event
-                CartCommunicationService.CurrentCart = [];
-                CartCommunicationService.raiseCartUpdatedEvent();
+                CartCommunicationService.setCart([]);
 
                 browserHistory.push('#/bookList');
                 AlertCommunicationService.raiseShowAlertEvent('Your command has been registered !', 'success');
